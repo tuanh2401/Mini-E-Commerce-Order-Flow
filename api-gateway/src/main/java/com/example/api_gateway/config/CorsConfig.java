@@ -22,7 +22,6 @@ public class CorsConfig {
         corsConfig.setMaxAge(3600L);
         corsConfig.setAllowCredentials(true);
 
-        // LƯU Ý: Phải là UrlBasedCorsConfigurationSource của package REACTIVE
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfig);
 

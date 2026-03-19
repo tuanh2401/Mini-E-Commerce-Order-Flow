@@ -51,12 +51,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 try {
                     // 4. Đưa cho JwtHelper kiểm tra chữ ký và hạn dùng
                     jwtHelper.validateToken(authHeader);
-
-                    // THÊM MỚI: Trích xuất userId và username từ Token
                     String userId = String.valueOf(jwtHelper.extractUserId(authHeader));
                     String username = jwtHelper.extractUsername(authHeader);
-
-                    // THÊM MỚI: Nhét userId và username vào Header của Request để gửi xé vé sang
                     // Order/User Service
                     org.springframework.http.server.reactive.ServerHttpRequest modifiedRequest = exchange.getRequest()
                             .mutate()
@@ -82,13 +78,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         });
     }
 
-    /**
-     * Hàm hỗ trợ tự tạo chuỗi JSON và nhét vào Body của luồng WebFlux
-     */
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
 
-        // Gắn mã lỗi (ví dụ 401)
+        // Gắn mã lỗi
         response.setStatusCode(httpStatus);
 
         // Báo cho Postman biết đây là kiểu định dạng JSON
@@ -106,6 +99,5 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     public static class Config {
-        // Class cấu hình rỗng
     }
 }

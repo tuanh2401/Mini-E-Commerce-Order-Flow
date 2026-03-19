@@ -12,11 +12,10 @@ public class RouteValidator {
     public static final List<String> openApiEndpoints = List.of(
         "/api/auth/login",
         "/api/auth/register",
-        "/eureka", // cho phép eureka hoạt động
+        "/eureka",
         "/v3/api-docs",
         "/swagger-ui"
     );
-    // Hàm ktra : Trả về True nếu rq cần phải kiểm tra Token (Không nằm trong danh sách)
     public Predicate<ServerHttpRequest> isSecured =
             request -> openApiEndpoints.stream().noneMatch(uri -> request.getURI().getPath().contains(uri));
 }

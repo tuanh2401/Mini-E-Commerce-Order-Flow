@@ -5,7 +5,6 @@ import com.example.auth_service.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-//Giao tiếp với dtb để truy xuất user
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);

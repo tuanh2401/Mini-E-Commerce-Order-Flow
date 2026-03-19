@@ -13,9 +13,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Stateless call, không cần CSRF token
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Tất cả đều pass qua vì API Gateway đã kiểm tra JWT Token
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }

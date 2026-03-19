@@ -32,8 +32,6 @@ public class AuthService {
         }
         // Tạo JWT
         String token = jwtService.generateToken(user.getUsername(), user.getId());
-
-        // THÊM MỚI (Lazy Sync): Đồng bộ cho cả user cũ khi họ đăng nhập
         try {
             com.example.auth_service.dto.SyncUserRequest syncRequest = com.example.auth_service.dto.SyncUserRequest.builder()
                     .id(user.getId())
@@ -63,8 +61,6 @@ public class AuthService {
                 .email(request.getUsername() + "@example.com")
                 .build();
         userRepository.save(user);
-
-        // THÊM MỚI: Gọi sang User Service để đồng bộ hồ sơ qua FeignClient
         try {
             com.example.auth_service.dto.SyncUserRequest syncRequest = com.example.auth_service.dto.SyncUserRequest.builder()
                     .id(user.getId())
@@ -74,7 +70,6 @@ public class AuthService {
             userClient.syncUser(syncRequest);
         } catch (Exception e) {
             System.err.println("Lỗi đồng bộ User: " + e.getMessage());
-            // Tùy chọn: Bạn có thể chọn rollback user nếu đồng bộ thất bại
         }
 
         String token = jwtService.generateToken(user.getUsername(), user.getId());

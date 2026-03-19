@@ -45,7 +45,6 @@ public class OrderServiceImpl implements OrderService {
         String userName = "Người dùng ẩn danh";
         try {
             // Gọi sang user-service để xác thực người dùng
-            // (Đảm bảo bạn đã tạo class UserResponse bên order-service)
             var userProfile = userClient.getUserById(userId);
             if (userProfile == null) {
                 throw new RuntimeException("Không tìm thấy thông tin người dùng!");
@@ -174,8 +173,7 @@ public class OrderServiceImpl implements OrderService {
         return orders.stream().map(order -> {
             OrderResponse response = mapToResponse(order);
             response.setUserName(finalUserName);
-            
-            // Enrich OrderItemResponse with productName
+
             if (response.getItems() != null) {
                 response.getItems().forEach(itemObj -> {
                     try {

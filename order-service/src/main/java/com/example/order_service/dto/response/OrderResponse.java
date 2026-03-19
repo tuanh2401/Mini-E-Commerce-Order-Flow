@@ -17,6 +17,5 @@ public class OrderResponse {
     private LocalDateTime createdAt;
     private String address;
     private String paymentMethod;
-    // Trả về danh sách chi tiết các món mua
     private List<OrderItemResponse> items;
 }
