@@ -1,0 +1,78 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: api-gateway
+        register-health-check: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+
+      routes:
+        # Route cho Auth Service
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+          # Nếu bạn không muốn forward cả prefix /api/auth sang auth-service
+          # filters:
+          #   - StripPrefix=2
+
+        # Route cho User Service
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho Product Service
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho Order Service
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - AuthenticationFilter
+        # Route cho Payment Service
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - AuthenticationFilter
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth-service
+        url: /api/auth/v3/api-docs
+      - name: user-service
+        url: /api/users/v3/api-docs
+      - name: product-service
+        url: /api/products/v3/api-docs
+      - name: order-service
+        url: /api/orders/v3/api-docs

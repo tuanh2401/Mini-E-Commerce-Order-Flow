@@ -1,0 +1,634 @@
+2026-03-19 14:04:05 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 22672 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 14:04:05 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 14:04:06 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 14:04:06 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 131 ms. Found 2 JPA repository interfaces.
+2026-03-19 14:04:07 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 14:04:07 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 14:04:07 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 14:04:08 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 14:04:08 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 14:04:08 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 14:04:08 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 14:04:08 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2559 ms
+2026-03-19 14:04:08 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 14:04:08 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 14:04:09 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 14:04:09 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 14:04:09 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 14:04:09 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: cea5a448-4581-4a98-8e19-ae2786c2e11d
+2026-03-19 14:04:09 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 14:04:09 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 14:04:11 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 14:04:11 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 14:04:12 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 14:04:13 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 14:04:13 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 14:04:13 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: c721a491-2bfc-47e9-b223-99eb4858f049
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 14:04:14 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 14:04:14 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@66c58c03, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@29e40db1, org.springframework.security.web.context.SecurityContextHolderFilter@79927a7c, org.springframework.security.web.header.HeaderWriterFilter@20dab85c, org.springframework.web.filter.CorsFilter@47e6004c, org.springframework.security.web.authentication.logout.LogoutFilter@765650e4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@20ca2c3f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@74c997b1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7c5ae5c3, org.springframework.security.web.access.ExceptionTranslationFilter@6a2d0632, org.springframework.security.web.access.intercept.AuthorizationFilter@6c758c74]
+2026-03-19 14:04:15 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 14:04:15 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 14:04:15 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 14:04:15 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 10.401 seconds (process running for 11.075)
+2026-03-19 14:04:19 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 14:04:19 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 14:04:19 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+2026-03-19 14:06:49 [http-nio-8083-exec-3] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 265 ms
+2026-03-19 14:13:40 [http-nio-8083-exec-1] INFO  c.e.o.controller.OrderController - User có ID [1] đang yêu cầu tạo đơn hàng mới
+2026-03-19 14:14:02 [http-nio-8083-exec-4] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 14:25:53 [http-nio-8083-exec-8] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 14:46:11 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 14:46:11 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 14:46:11 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 14:46:11 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 14:46:15 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 13832 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 14:46:15 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 14:46:16 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 14:46:16 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 127 ms. Found 2 JPA repository interfaces.
+2026-03-19 14:46:16 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 14:46:17 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 14:46:17 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 14:46:17 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 14:46:17 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 14:46:17 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 14:46:17 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 14:46:17 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2362 ms
+2026-03-19 14:46:18 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 14:46:18 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 14:46:18 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 14:46:19 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 14:46:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 14:46:19 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 5500c396-ee0d-476b-a959-dad42d9ed9de
+2026-03-19 14:46:19 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 14:46:19 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 14:46:20 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 14:46:21 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 14:46:21 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 14:46:22 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 14:46:22 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 14:46:22 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 5d4bf6b6-9ebe-4776-a45b-8d945f1fd951
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 14:46:23 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 14:46:23 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4872d04d, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@75564689, org.springframework.security.web.context.SecurityContextHolderFilter@5bebdfcb, org.springframework.security.web.header.HeaderWriterFilter@155788a7, org.springframework.web.filter.CorsFilter@65977161, org.springframework.security.web.authentication.logout.LogoutFilter@25a41143, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@22e7ec5f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@290964bd, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5f7e2ca8, org.springframework.security.web.access.ExceptionTranslationFilter@4c0e09b5, org.springframework.security.web.access.intercept.AuthorizationFilter@223ed38f]
+2026-03-19 14:46:24 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 14:46:24 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 14:46:24 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 14:46:24 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 9.236 seconds (process running for 9.841)
+2026-03-19 14:46:25 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 14:46:25 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 14:46:25 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 14:47:48 [http-nio-8083-exec-8] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 341 ms
+2026-03-19 15:18:55 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 15:18:55 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:18:55 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 15:18:55 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 15:18:58 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 29820 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 15:18:58 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 15:18:59 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 15:18:59 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 138 ms. Found 2 JPA repository interfaces.
+2026-03-19 15:18:59 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 15:19:00 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 15:19:00 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 15:19:00 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 15:19:00 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 15:19:00 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 15:19:00 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 15:19:00 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2349 ms
+2026-03-19 15:19:01 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 15:19:01 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 15:19:01 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 15:19:01 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 15:19:01 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 15:19:02 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 3f5b5a48-ffdf-4782-a180-b3047cc2fb39
+2026-03-19 15:19:02 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 15:19:02 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 15:19:03 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 15:19:03 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:19:04 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 15:19:04 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:19:04 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:19:05 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 42979f1a-8a0c-4eaa-9060-db8da8333f58
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 15:19:05 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 15:19:05 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@50fd4246, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@35c55050, org.springframework.security.web.context.SecurityContextHolderFilter@4c0e09b5, org.springframework.security.web.header.HeaderWriterFilter@49588c70, org.springframework.web.filter.CorsFilter@2a0154f7, org.springframework.security.web.authentication.logout.LogoutFilter@4afb2c90, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@60232aad, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@155788a7, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@237e61ac, org.springframework.security.web.access.ExceptionTranslationFilter@64514009, org.springframework.security.web.access.intercept.AuthorizationFilter@4623c0d3]
+2026-03-19 15:19:06 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 15:19:06 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 15:19:06 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 15:19:06 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 8.759 seconds (process running for 9.445)
+2026-03-19 15:19:09 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 15:19:09 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 15:19:09 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-19 15:21:15 [http-nio-8083-exec-4] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 303 ms
+2026-03-19 15:27:22 [http-nio-8083-exec-5] INFO  c.e.o.controller.OrderController - User có ID [13] đang yêu cầu tạo đơn hàng mới
+2026-03-19 15:42:35 [http-nio-8083-exec-2] INFO  c.e.o.controller.OrderController - User có ID [14] đang yêu cầu tạo đơn hàng mới
+2026-03-19 15:52:51 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 15:52:51 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:52:51 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 15:52:51 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 15:52:56 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 29528 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 15:52:56 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 15:52:57 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 15:52:57 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 131 ms. Found 2 JPA repository interfaces.
+2026-03-19 15:52:58 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 15:52:58 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 15:52:58 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 15:52:58 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 15:52:58 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 15:52:58 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 15:52:58 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 15:52:58 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2402 ms
+2026-03-19 15:52:59 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 15:52:59 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 15:52:59 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 15:52:59 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 15:52:59 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 15:53:00 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: e08bcf74-b597-4a3d-946f-691d228196bb
+2026-03-19 15:53:00 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 15:53:00 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 15:53:01 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 15:53:02 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:53:03 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 15:53:04 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:53:04 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:53:04 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: c9b2a822-0a6b-4287-b172-db1c5436b2ba
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 15:53:04 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 15:53:05 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2df019b8, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@223ed38f, org.springframework.security.web.context.SecurityContextHolderFilter@28f33810, org.springframework.security.web.header.HeaderWriterFilter@1170d81f, org.springframework.web.filter.CorsFilter@66ab765c, org.springframework.security.web.authentication.logout.LogoutFilter@7ae736a8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@76527a00, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@42908ad5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@319428ba, org.springframework.security.web.access.ExceptionTranslationFilter@1cb58c8a, org.springframework.security.web.access.intercept.AuthorizationFilter@6f36c42]
+2026-03-19 15:53:06 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 15:53:06 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 15:53:06 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 15:53:06 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 10.346 seconds (process running for 10.955)
+2026-03-19 15:53:12 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 15:53:12 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 15:53:12 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 15:53:43 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 15:53:43 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:53:43 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 15:53:43 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 15:53:47 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 30864 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 15:53:47 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 15:53:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 15:53:48 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 132 ms. Found 2 JPA repository interfaces.
+2026-03-19 15:53:49 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 15:53:49 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 15:53:49 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 15:53:49 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 15:53:49 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 15:53:49 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 15:53:49 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 15:53:49 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2322 ms
+2026-03-19 15:53:50 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 15:53:50 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 15:53:50 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 15:53:50 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 15:53:50 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 15:53:51 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: a5be7c84-3df7-44c2-888c-58b9622da1d0
+2026-03-19 15:53:51 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 15:53:51 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 15:53:52 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 15:53:53 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 15:53:53 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 15:53:54 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:53:54 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 15:53:54 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 557a0797-1a05-4326-95ea-51bea320d466
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 15:53:55 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 15:53:55 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@66ab765c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@319428ba, org.springframework.security.web.context.SecurityContextHolderFilter@6e56f5d4, org.springframework.security.web.header.HeaderWriterFilter@60232aad, org.springframework.web.filter.CorsFilter@1c04dae9, org.springframework.security.web.authentication.logout.LogoutFilter@34ceefb5, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2ca6937, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@22e7ec5f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4872d04d, org.springframework.security.web.access.ExceptionTranslationFilter@591e27f1, org.springframework.security.web.access.intercept.AuthorizationFilter@765650e4]
+2026-03-19 15:53:55 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 15:53:55 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 15:53:55 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 15:53:55 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 9.075 seconds (process running for 9.722)
+2026-03-19 15:53:56 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 15:53:56 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 15:53:56 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 15:55:36 [http-nio-8083-exec-1] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 368 ms
+2026-03-19 15:55:43 [http-nio-8083-exec-3] INFO  c.e.o.controller.OrderController - User có ID [14] đang yêu cầu tạo đơn hàng mới
+2026-03-19 15:56:13 [http-nio-8083-exec-7] INFO  c.e.o.controller.OrderController - User có ID [14] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:03:12 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 16:03:12 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:03:12 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:03:12 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:03:17 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 19388 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:03:17 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:03:18 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:03:18 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 155 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:03:19 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:03:19 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:03:19 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:03:20 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:03:20 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:03:20 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:03:20 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:03:20 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2708 ms
+2026-03-19 16:03:20 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:03:21 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:03:21 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:03:21 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:03:21 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:03:22 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 5e044cf5-641b-4e4d-8061-9f6b8784d1e5
+2026-03-19 16:03:22 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:03:22 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:03:23 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 16:03:23 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:03:24 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 16:03:25 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:03:25 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:03:25 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 780b2944-b447-41e5-950f-d926efea90d2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 16:03:26 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 16:03:26 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@12b9d405, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@402d443d, org.springframework.security.web.context.SecurityContextHolderFilter@17f8c75e, org.springframework.security.web.header.HeaderWriterFilter@134b9d9c, org.springframework.web.filter.CorsFilter@32e0b990, org.springframework.security.web.authentication.logout.LogoutFilter@46f5030f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@e182453, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7b3b763d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7f6ba409, org.springframework.security.web.access.ExceptionTranslationFilter@18563d10, org.springframework.security.web.access.intercept.AuthorizationFilter@7b0a864e]
+2026-03-19 16:03:27 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 16:03:27 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 16:03:27 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 16:03:27 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 10.557 seconds (process running for 11.201)
+2026-03-19 16:03:31 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 16:03:31 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 16:03:31 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 16:03:41 [http-nio-8083-exec-2] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 324 ms
+2026-03-19 16:05:14 [http-nio-8083-exec-4] INFO  c.e.o.controller.OrderController - User có ID [14] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:17:03 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 16:17:03 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:17:03 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:17:03 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:17:08 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 23172 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:17:08 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:17:09 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:17:09 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 130 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:17:09 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:17:09 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:17:09 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:17:10 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:17:10 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:17:10 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:17:10 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:17:10 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2266 ms
+2026-03-19 16:17:11 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:17:11 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:17:11 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:17:11 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:17:11 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:17:12 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 44cc77c6-7f4b-45fd-afb0-b517b37af4f1
+2026-03-19 16:17:12 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:17:12 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:17:12 [main] ERROR o.s.o.j.LocalContainerEntityManagerFactoryBean - Failed to initialize JPA EntityManagerFactory: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+2026-03-19 16:17:12 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+2026-03-19 16:17:12 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:17:12 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:17:12 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-03-19 16:17:12 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-19 16:17:12 [main] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
+	at com.example.order_service.OrderServiceApplication.main(OrderServiceApplication.java:12)
+Caused by: org.hibernate.DuplicateMappingException: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl$TableColumnNameBinding.bindPhysicalToLogical(InFlightMetadataCollectorImpl.java:1114)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl$TableColumnNameBinding.addBinding(InFlightMetadataCollectorImpl.java:1083)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.addColumnNameBinding(InFlightMetadataCollectorImpl.java:1153)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.addColumnNameBinding(InFlightMetadataCollectorImpl.java:1134)
+	at org.hibernate.boot.model.internal.AnnotatedColumn.addColumnBinding(AnnotatedColumn.java:466)
+	at org.hibernate.boot.model.internal.AnnotatedColumn.linkWithValue(AnnotatedColumn.java:432)
+	at org.hibernate.boot.model.internal.BasicValueBinder.linkWithValue(BasicValueBinder.java:1284)
+	at org.hibernate.boot.model.internal.BasicValueBinder.make(BasicValueBinder.java:1246)
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyAndValue(PropertyBinder.java:271)
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyValueAndBind(PropertyBinder.java:297)
+	at org.hibernate.boot.model.internal.PropertyBinder.createBasicBinder(PropertyBinder.java:1169)
+	at org.hibernate.boot.model.internal.PropertyBinder.bindBasic(PropertyBinder.java:1071)
+	at org.hibernate.boot.model.internal.PropertyBinder.bindProperty(PropertyBinder.java:890)
+	at org.hibernate.boot.model.internal.PropertyBinder.buildProperty(PropertyBinder.java:788)
+	at org.hibernate.boot.model.internal.PropertyBinder.processElementAnnotations(PropertyBinder.java:709)
+	at org.hibernate.boot.model.internal.EntityBinder.processIdPropertiesIfNotAlready(EntityBinder.java:1041)
+	at org.hibernate.boot.model.internal.EntityBinder.handleIdentifier(EntityBinder.java:357)
+	at org.hibernate.boot.model.internal.EntityBinder.bindEntityClass(EntityBinder.java:237)
+	at org.hibernate.boot.model.internal.AnnotationBinder.bindClass(AnnotationBinder.java:423)
+	at org.hibernate.boot.model.source.internal.annotations.AnnotationMetadataSourceProcessorImpl.processEntityHierarchies(AnnotationMetadataSourceProcessorImpl.java:256)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess$1.processEntityHierarchies(MetadataBuildingProcess.java:279)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:322)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1432)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1503)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:75)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1833)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782)
+	... 16 common frames omitted
+2026-03-19 16:17:26 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 7008 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:17:26 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:17:27 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:17:27 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 132 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:17:28 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:17:28 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:17:28 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:17:28 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:17:28 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:17:28 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:17:28 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:17:28 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2383 ms
+2026-03-19 16:17:29 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:17:29 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:17:29 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:17:29 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:17:29 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:17:30 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 4c6f4959-83f1-4865-bbdb-28dd985bd9a1
+2026-03-19 16:17:30 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:17:30 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:17:30 [main] ERROR o.s.o.j.LocalContainerEntityManagerFactoryBean - Failed to initialize JPA EntityManagerFactory: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+2026-03-19 16:17:30 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+2026-03-19 16:17:30 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:17:30 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:17:30 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-03-19 16:17:30 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-19 16:17:30 [main] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1234)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:952)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
+	at com.example.order_service.OrderServiceApplication.main(OrderServiceApplication.java:12)
+Caused by: org.hibernate.DuplicateMappingException: Table [orders] contains physical column name [user_name] referred to by multiple logical column names: [userName], [user_name]
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl$TableColumnNameBinding.bindPhysicalToLogical(InFlightMetadataCollectorImpl.java:1114)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl$TableColumnNameBinding.addBinding(InFlightMetadataCollectorImpl.java:1083)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.addColumnNameBinding(InFlightMetadataCollectorImpl.java:1153)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.addColumnNameBinding(InFlightMetadataCollectorImpl.java:1134)
+	at org.hibernate.boot.model.internal.AnnotatedColumn.addColumnBinding(AnnotatedColumn.java:466)
+	at org.hibernate.boot.model.internal.AnnotatedColumn.linkWithValue(AnnotatedColumn.java:432)
+	at org.hibernate.boot.model.internal.BasicValueBinder.linkWithValue(BasicValueBinder.java:1284)
+	at org.hibernate.boot.model.internal.BasicValueBinder.make(BasicValueBinder.java:1246)
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyAndValue(PropertyBinder.java:271)
+	at org.hibernate.boot.model.internal.PropertyBinder.makePropertyValueAndBind(PropertyBinder.java:297)
+	at org.hibernate.boot.model.internal.PropertyBinder.createBasicBinder(PropertyBinder.java:1169)
+	at org.hibernate.boot.model.internal.PropertyBinder.bindBasic(PropertyBinder.java:1071)
+	at org.hibernate.boot.model.internal.PropertyBinder.bindProperty(PropertyBinder.java:890)
+	at org.hibernate.boot.model.internal.PropertyBinder.buildProperty(PropertyBinder.java:788)
+	at org.hibernate.boot.model.internal.PropertyBinder.processElementAnnotations(PropertyBinder.java:709)
+	at org.hibernate.boot.model.internal.EntityBinder.processIdPropertiesIfNotAlready(EntityBinder.java:1041)
+	at org.hibernate.boot.model.internal.EntityBinder.handleIdentifier(EntityBinder.java:357)
+	at org.hibernate.boot.model.internal.EntityBinder.bindEntityClass(EntityBinder.java:237)
+	at org.hibernate.boot.model.internal.AnnotationBinder.bindClass(AnnotationBinder.java:423)
+	at org.hibernate.boot.model.source.internal.annotations.AnnotationMetadataSourceProcessorImpl.processEntityHierarchies(AnnotationMetadataSourceProcessorImpl.java:256)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess$1.processEntityHierarchies(MetadataBuildingProcess.java:279)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:322)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1432)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1503)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:75)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1833)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1782)
+	... 16 common frames omitted
+2026-03-19 16:19:29 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 26564 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:19:29 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:19:31 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:19:31 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 131 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:19:31 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:19:31 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:19:31 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:19:32 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:19:32 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:19:32 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:19:32 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:19:32 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2369 ms
+2026-03-19 16:19:32 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:19:33 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:19:33 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:19:33 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:19:33 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:19:33 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: d772ead7-b85b-4efd-ac99-a9c1f9b7e770
+2026-03-19 16:19:33 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:19:33 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:19:34 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 16:19:35 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:19:36 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 16:19:36 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:19:36 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:19:37 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 7515cc4e-92ec-47a5-ad77-070cc1a6b0a5
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 16:19:37 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 16:19:37 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@34adce96, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5a2e4e77, org.springframework.security.web.context.SecurityContextHolderFilter@3411e0d7, org.springframework.security.web.header.HeaderWriterFilter@2ca6937, org.springframework.web.filter.CorsFilter@794c22cd, org.springframework.security.web.authentication.logout.LogoutFilter@1ea6446b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2c66be14, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@39d5376c, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5fb8ad3d, org.springframework.security.web.access.ExceptionTranslationFilter@6cd8aee2, org.springframework.security.web.access.intercept.AuthorizationFilter@1d07fb2]
+2026-03-19 16:19:38 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 16:19:38 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 16:19:38 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 16:19:38 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 9.33 seconds (process running for 9.889)
+2026-03-19 16:19:45 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 16:19:45 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 16:19:45 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-19 16:19:54 [http-nio-8083-exec-2] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 264 ms
+2026-03-19 16:20:49 [http-nio-8083-exec-10] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:25:15 [http-nio-8083-exec-1] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:29:35 [http-nio-8083-exec-1] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:30:38 [http-nio-8083-exec-10] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:30:39 [http-nio-8083-exec-1] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:33:34 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 16:33:34 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:33:34 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:33:34 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:33:38 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 13760 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:33:38 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:33:39 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:33:39 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 175 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:33:40 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:33:40 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:33:40 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:33:41 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:33:41 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:33:41 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:33:41 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:33:41 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2633 ms
+2026-03-19 16:33:42 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:33:42 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:33:42 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:33:42 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:33:42 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:33:43 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: dba370e4-d42d-4d47-85d2-da943ad51fd7
+2026-03-19 16:33:43 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:33:43 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:33:44 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 16:33:45 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:33:45 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 16:33:46 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:33:46 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:33:46 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 9affa252-1061-4721-8312-90527f162867
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 16:33:47 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 16:33:47 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7c5ae5c3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@36b5dbdf, org.springframework.security.web.context.SecurityContextHolderFilter@4ae1ee85, org.springframework.security.web.header.HeaderWriterFilter@2f59ecf, org.springframework.web.filter.CorsFilter@3f35d13d, org.springframework.security.web.authentication.logout.LogoutFilter@223ed38f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@74c997b1, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@358b70c4, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@482652f7, org.springframework.security.web.access.ExceptionTranslationFilter@2c66be14, org.springframework.security.web.access.intercept.AuthorizationFilter@2693b289]
+2026-03-19 16:33:48 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 16:33:48 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 16:33:48 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 16:33:48 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 10.324 seconds (process running for 10.947)
+2026-03-19 16:33:56 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 16:33:56 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 16:33:56 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 16:34:26 [http-nio-8083-exec-4] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 304 ms
+2026-03-19 16:34:46 [http-nio-8083-exec-7] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:50:18 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 16:50:18 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:50:18 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:50:18 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-19 16:50:21 [main] INFO  c.e.o.OrderServiceApplication - Starting OrderServiceApplication using Java 25.0.1 with PID 27320 (C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service\target\classes started by datdo in C:\Users\datdo\Desktop\Mini E-commerce Orders\order-service)
+2026-03-19 16:50:21 [main] DEBUG c.e.o.OrderServiceApplication - Running with Spring Boot v3.2.4, Spring v6.1.5
+2026-03-19 16:50:21 [main] INFO  c.e.o.OrderServiceApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-19 16:50:22 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19 16:50:22 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 134 ms. Found 2 JPA repository interfaces.
+2026-03-19 16:50:22 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=ea07bafe-0a6e-3bc8-8f9e-1b097744c930
+2026-03-19 16:50:23 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig' of type [org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration$DeferringLoadBalancerInterceptorConfig] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [lbRestClientPostProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-03-19 16:50:23 [main] WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'deferringLoadBalancerInterceptor' of type [org.springframework.cloud.client.loadbalancer.DeferringLoadBalancerInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [lbRestClientPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2026-03-19 16:50:23 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8083 (http)
+2026-03-19 16:50:23 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-19 16:50:23 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2026-03-19 16:50:23 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-19 16:50:23 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2449 ms
+2026-03-19 16:50:24 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19 16:50:24 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.4.Final
+2026-03-19 16:50:24 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-19 16:50:24 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19 16:50:25 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-19 16:50:25 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 648aa45e-765c-424d-b220-3d4aacc1e88c
+2026-03-19 16:50:25 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-19 16:50:25 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19 16:50:26 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19 16:50:27 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:50:27 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19 16:50:28 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'product-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:50:28 [main] INFO  o.s.c.o.FeignClientFactoryBean - For 'user-service' URL not provided. Will try picking an instance via load-balancing.
+2026-03-19 16:50:28 [main] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 45a21ff9-5209-4f4c-bd22-32219be4e54b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-19 16:50:29 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-03-19 16:50:29 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@29e40db1, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@47e6004c, org.springframework.security.web.context.SecurityContextHolderFilter@484f7fad, org.springframework.security.web.header.HeaderWriterFilter@4fc41cba, org.springframework.web.filter.CorsFilter@7c5ae5c3, org.springframework.security.web.authentication.logout.LogoutFilter@307cf289, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@134b9d9c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@593f6c3, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@36b5dbdf, org.springframework.security.web.access.ExceptionTranslationFilter@75044df3, org.springframework.security.web.access.intercept.AuthorizationFilter@5a32ab89]
+2026-03-19 16:50:30 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-03-19 16:50:30 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8083 (http) with context path ''
+2026-03-19 16:50:30 [main] INFO  o.s.c.c.s.ConsulServiceRegistry - Registering service with consul: NewService{id='order-service-8083', name='order-service', tags=[], address='TuanAnh', meta={secure=false}, port=8083, enableTagOverride=null, check=Check{script='null', dockerContainerID='null', shell='null', interval='10s', ttl='null', http='http://TuanAnh:8083/actuator/health', method='null', header={}, tcp='null', timeout='null', deregisterCriticalServiceAfter='null', tlsSkipVerify=null, status='null', grpc='null', grpcUseTLS=null}, checks=null}
+2026-03-19 16:50:30 [main] INFO  c.e.o.OrderServiceApplication - Started OrderServiceApplication in 9.495 seconds (process running for 10.15)
+2026-03-19 16:50:39 [http-nio-8083-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19 16:50:39 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-19 16:50:39 [http-nio-8083-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-19 16:50:39 [http-nio-8083-exec-1] INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 340 ms
+2026-03-19 16:51:37 [http-nio-8083-exec-9] INFO  c.e.o.controller.OrderController - User có ID [11] đang yêu cầu tạo đơn hàng mới
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.controller.OrderController - Chi tiết giỏ hàng gửi lên: OrderRequest(customerId=11, address=ha nam, paymentMethod=CK, orderItems=[OrderItemRequest(productId=16, quantity=10, price=0)])
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] ---> GET http://user-service/api/users/11 HTTP/1.1
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] ---> END HTTP (0-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] <--- HTTP/1.1 200 (108ms)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] cache-control: no-cache, no-store, max-age=0, must-revalidate
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] connection: keep-alive
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] content-type: application/json
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] date: Thu, 19 Mar 2026 09:51:37 GMT
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] expires: 0
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] keep-alive: timeout=60
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] pragma: no-cache
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] transfer-encoding: chunked
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] vary: Origin
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] vary: Access-Control-Request-Method
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] vary: Access-Control-Request-Headers
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] x-content-type-options: nosniff
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] x-frame-options: DENY
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] x-xss-protection: 0
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] 
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] {"id":11,"fullName":"tuananhnguyen4","email":"tuananhnguyen4@example.com","phone":null,"address":null}
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.order_service.client.UserClient - [UserClient#getUserById] <--- END HTTP (102-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] ---> GET http://product-service/api/products/16 HTTP/1.1
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] ---> END HTTP (0-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] <--- HTTP/1.1 200 (29ms)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] connection: keep-alive
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] content-type: application/json
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] date: Thu, 19 Mar 2026 09:51:36 GMT
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] keep-alive: timeout=60
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] transfer-encoding: chunked
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] 
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] {"success":true,"message":"Fetched product successfully","data":{"id":16,"name":"Iphone 17 ProMax","description":"Flagship","price":370000.00,"stock":100}}
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] <--- END HTTP (155-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] ---> PUT http://product-service/api/products/16/reduce-stock?quantity=10 HTTP/1.1
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] ---> END HTTP (0-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] <--- HTTP/1.1 200 (15ms)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] connection: keep-alive
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] content-type: application/json
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] date: Thu, 19 Mar 2026 09:51:36 GMT
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] keep-alive: timeout=60
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] transfer-encoding: chunked
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] 
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] {"success":true,"message":"Stock reduced successfully","data":null}
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#reduceStock] <--- END HTTP (67-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] ---> GET http://product-service/api/products/16 HTTP/1.1
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] ---> END HTTP (0-byte body)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] <--- HTTP/1.1 200 (5ms)
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] connection: keep-alive
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] content-type: application/json
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] date: Thu, 19 Mar 2026 09:51:36 GMT
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] keep-alive: timeout=60
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] transfer-encoding: chunked
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] 
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] {"success":true,"message":"Fetched product successfully","data":{"id":16,"name":"Iphone 17 ProMax","description":"Flagship","price":370000.00,"stock":90}}
+2026-03-19 16:51:37 [http-nio-8083-exec-9] DEBUG c.e.o.client.ProductClient - [ProductClient#getProductById] <--- END HTTP (154-byte body)
+2026-03-19 16:58:25 [SpringApplicationShutdownHook] INFO  o.s.c.c.s.ConsulServiceRegistry - Deregistering service with consul: order-service-8083
+2026-03-19 16:58:25 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19 16:58:25 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-19 16:58:25 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
