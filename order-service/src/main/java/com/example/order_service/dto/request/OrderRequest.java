@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class OrderRequest {
-    private String customerId;
     private String address;
     private String paymentMethod;
     private List<OrderItemRequest> orderItems;

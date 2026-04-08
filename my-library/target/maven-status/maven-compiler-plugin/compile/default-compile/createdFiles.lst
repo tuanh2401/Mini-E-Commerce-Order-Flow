@@ -1,4 +1,7 @@
 com\example\lib\HelloService.class
-com\example\lib\dto\ApiResponse.class
+com\example\lib\dto\PaymentProcessedEvent.class
 com\example\lib\exception\ErrorInfo.class
+com\example\lib\dto\ApiResponse.class
+com\example\lib\dto\OrderCreatedEvent.class
+com\example\lib\dto\OrderItemEvent.class
 com\example\lib\util\JwtHelper.class

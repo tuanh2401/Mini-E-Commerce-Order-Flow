@@ -8,9 +8,8 @@ import java.util.function.Predicate;
 
 @Component
 public class RouteValidator {
-    //Danh sách các API không cần kiểm tra JWT(Public endpoints)
     public static final List<String> openApiEndpoints = List.of(
-        "/api/auth/login",
+        "/api/auth/authenticate",
         "/api/auth/register",
         "/eureka",
         "/v3/api-docs",

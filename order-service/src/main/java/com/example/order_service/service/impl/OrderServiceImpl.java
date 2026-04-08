@@ -1,5 +1,7 @@
 package com.example.order_service.service.impl;
 
+import com.example.lib.dto.OrderCreatedEvent;
+import com.example.lib.dto.OrderItemEvent;
 import com.example.order_service.client.ProductClient;
 import com.example.order_service.client.UserClient;
 import com.example.order_service.dto.request.OrderItemRequest;
@@ -8,29 +10,31 @@ import com.example.order_service.dto.response.OrderItemResponse;
 import com.example.order_service.dto.response.OrderResponse;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderItem;
+import com.example.order_service.event.OrderEventPublisher;
+import com.example.order_service.repository.OrderItemRepository;
 import com.example.order_service.repository.OrderRepository;
 import com.example.order_service.service.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.example.lib.dto.ApiResponse; // Import từ thư viện dùng chung
-import com.example.order_service.dto.response.ProductResponse; // Import DTO của chính nó
-import com.example.order_service.dto.response.ProductResponse; // Import DTO của chính nó
-
+import com.example.order_service.dto.response.ProductResponse;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.bouncycastle.asn1.x500.style.RFC4519Style.o;
 
 @Service // spring boot phân biệt là service bean
 @RequiredArgsConstructor // Tự tạo constructor nhúng các repository vào
+@Slf4j
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final UserClient userClient;
+    private final OrderEventPublisher orderEventPublisher;
     @Override
     @Transactional // Nếu ở giữa chừng xảy ra lỗi vd sever sập thì fb sẽ rollback
     public OrderResponse createOrder(Long userId, OrderRequest request) {
@@ -75,7 +79,6 @@ public class OrderServiceImpl implements OrderService {
 
             // b. Kiểm tra và Trừ kho NGAY LẬP TỨC sang product-service
             // Nếu kho không đủ, service bên kia sẽ ném lỗi và transaction ở đây sẽ rollback
-            productClient.reduceStock(reqItem.getProductId(), reqItem.getQuantity());
 
             OrderItem item = new OrderItem();
             item.setProductId(reqItem.getProductId());
@@ -98,7 +101,15 @@ public class OrderServiceImpl implements OrderService {
 
         // lƯU VÀO DATABASE BẰNG REPOSITORY ĐÃ TẠO Ở BƯỚC 2
         Order saveOrder = orderRepository.save(order);
-
+        //Tạo danh sách items cho event
+        List<OrderItemEvent> eventItems = new ArrayList<>();
+        for(OrderItem item : saveOrder.getItems()){
+            eventItems.add(new OrderItemEvent(item.getProductId(),item.getQuantity()));
+        }
+        //Tạo event
+        OrderCreatedEvent event = new OrderCreatedEvent(saveOrder.getId(), saveOrder.getUserId(), eventItems);
+        //Publish lên RabbitMQ
+        orderEventPublisher.pulishOrderCreatedEvent(event);
         // MAP dữ liệu từ entity sang response dto để trả về cho khách
         OrderResponse response = mapToResponse(saveOrder);
         
@@ -188,5 +199,11 @@ public class OrderServiceImpl implements OrderService {
             }
             return response;
         }).collect(Collectors.toList());
+    }
+    @Override
+    public OrderResponse getOrderById(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng: " + orderId));
+        return mapToResponse(order);
     }
 }
