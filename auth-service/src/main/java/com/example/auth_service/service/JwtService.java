@@ -22,8 +22,8 @@ public class JwtService {
     }
 
     // Cỗ máy in thẻ - máy kiểm tra thẻ
-    public String generateToken(String username, Long userId) {
-        return jwtHelper.generateToken(username, userId, expiration);
+    public String generateToken(String username, Long userId , String role) {
+        return jwtHelper.generateToken(username, userId, expiration,role);
     }
 
     /**

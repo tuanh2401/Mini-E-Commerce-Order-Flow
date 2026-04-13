@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class UserController {
 
     // 1. XEM thông tin cá nhân của chính mình
     @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserResponse> getMyProfile(@RequestHeader("userId") Long userId) {
         // Sửa lại: Dùng log xem thông tin, không dùng request
         log.info("User [{}] đang truy cập để xem thông tin cá nhân", userId);
@@ -28,6 +30,7 @@ public class UserController {
 
     // 2. CẬP NHẬT thông tin cá nhân của chính mình
     @PutMapping("/me")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserResponse> updateMyProfile(
             @RequestHeader("userId") Long userId,
             @Valid @RequestBody UpdateUserRequest request) {
@@ -44,8 +47,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    // API dành riêng cho Nội bộ (Feign Client gọi sang)
+    @GetMapping("/internal/{id}")
+    public ResponseEntity<UserResponse> getInternalUserById(@PathVariable Long id) {
+        log.info("[Bảo mật nội bộ] Cho phép truy vấn thông tin User ID: {}", id);
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     // 4. Cập nhật User bất kỳ (Dùng cho Admin)
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {

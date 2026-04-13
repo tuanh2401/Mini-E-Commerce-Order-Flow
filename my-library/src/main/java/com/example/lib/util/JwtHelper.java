@@ -21,10 +21,11 @@ public class JwtHelper {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username, Long userId, Long expirationMs) {
+    public String generateToken(String username, Long userId, Long expirationMs, String role) {
         return Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())
@@ -46,7 +47,9 @@ public class JwtHelper {
     public Long extractUserId(String token) {
         return getClaims(token).get("userId", Long.class);
     }
-
+    public String extractRole(String token) {
+        return getClaims(token).get("role", String.class);
+    }
     public boolean validateToken(String token) {
         try {
             getClaims(token);

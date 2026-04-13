@@ -1,4 +1,4 @@
-package com.example.order_service.config;
+package com.example.payment_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép truy cập ẩn danh vào các link này:
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/**","/api/orders/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/orders/internal/**").permitAll()
+                        .requestMatchers("/api/payments/vnpay-ipn", "/api/payments/vnpay-callback", "/actuator/**", "/v3/api-docs/**", "/api/payments/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // Còn lại tất cả các API khác phải có Authentication (có thẻ mới cho vào)
                         .anyRequest().authenticated()
                 )
@@ -39,3 +38,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

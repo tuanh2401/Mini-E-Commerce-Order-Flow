@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ProductController {
 
     // 1. TẠO MỚI SẢN PHẨM (POST)
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
         log.info("Nhận yêu cầu tạo sản phẩm mới tên: {}", request.getName());
         log.debug("Dữ liệu đầy đủ của yêu cầu là : {}", request);
@@ -45,8 +47,17 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Fetched product successfully", response));
     }
 
+    // --- API NỘI BỘ DÀNH CHO FEIGN CLIENT ---
+    @GetMapping("/internal/{id}")
+    public ResponseEntity<ApiResponse<ProductResponse>> getInternalProductById(@PathVariable Long id) {
+        log.info("[Nội bộ] Order Service đang lấy thông tin sản phẩm ID: {}", id);
+        ProductResponse response = productService.getProductById(id);
+        return ResponseEntity.ok(ApiResponse.success("Fetched product successfully", response));
+    }
+
     // 4. SỬA SẢN PHẨM (PUT)
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         ProductResponse response = productService.updateProduct(id, request);
         return ResponseEntity.ok(ApiResponse.success("Product updated successfully", response));
@@ -54,14 +65,16 @@ public class ProductController {
 
     // 5. XÓA SẢN PHẨM (DELETE)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
     }
 
     // 6. TRỪ KHO (PUT) - Gọi nội bộ từ Order Service
-    @PutMapping("/{id}/reduce-stock")
-    public ResponseEntity<ApiResponse<Void>> reduceStock(@PathVariable Long id, @RequestParam Integer quantity) {
+    @PutMapping("/internal/{id}/reduce-stock")
+    public ResponseEntity<ApiResponse<Void>> reduceStockInternal(@PathVariable Long id, @RequestParam Integer quantity) {
+        log.info("[Nội bộ] Order Service đang yêu cầu trừ {} sản phẩm của ID: {}", quantity, id);
         productService.reduceStock(id, quantity);
         return ResponseEntity.ok(ApiResponse.success("Stock reduced successfully", null));
     }

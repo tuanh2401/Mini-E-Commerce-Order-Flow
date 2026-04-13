@@ -2,6 +2,7 @@ package com.example.auth_service.service;
 
 import com.example.auth_service.dto.AuthResponse;
 import com.example.auth_service.dto.LoginRequest;
+import com.example.auth_service.entity.Role;
 import com.example.auth_service.entity.User;
 import com.example.auth_service.repository.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,7 +32,7 @@ public class AuthService {
             throw new BadCredentialsException("Sai username hoặc password");
         }
         // Tạo JWT
-        String token = jwtService.generateToken(user.getUsername(), user.getId());
+        String token = jwtService.generateToken(user.getUsername(), user.getId(), user.getRole().name());
         try {
             com.example.auth_service.dto.SyncUserRequest syncRequest = com.example.auth_service.dto.SyncUserRequest.builder()
                     .id(user.getId())
@@ -59,6 +60,7 @@ public class AuthService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getUsername() + "@example.com")
+                .role(Role.USER)
                 .build();
         userRepository.save(user);
         try {
@@ -72,7 +74,7 @@ public class AuthService {
             System.err.println("Lỗi đồng bộ User: " + e.getMessage());
         }
 
-        String token = jwtService.generateToken(user.getUsername(), user.getId());
+        String token = jwtService.generateToken(user.getUsername(), user.getId(), user.getRole().name());
         return AuthResponse.builder()
                 .jwt(token)
                 .username(user.getUsername())

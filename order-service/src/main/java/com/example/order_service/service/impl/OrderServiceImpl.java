@@ -206,4 +206,42 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng: " + orderId));
         return mapToResponse(order);
     }
+
+    @Override
+    public List<OrderResponse> getAllOrders() {
+        // 1. Fetch all orders
+        List<Order> orders = orderRepository.findAll();
+        
+        // 2. Map orders to response
+        return orders.stream().map(order -> {
+            OrderResponse response = mapToResponse(order);
+            
+            // Lấy thông tin User
+            try {
+                var userProfile = userClient.getUserById(order.getUserId());
+                if (userProfile != null && userProfile.getFullName() != null) {
+                    response.setUserName(userProfile.getFullName());
+                } else {
+                    response.setUserName("Người dùng ẩn danh");
+                }
+            } catch (Exception e) {
+                response.setUserName("Người dùng ẩn danh");
+            }
+
+            // Lấy thông tin Product
+            if (response.getItems() != null) {
+                response.getItems().forEach(itemObj -> {
+                    try {
+                        ApiResponse<ProductResponse> productRes = productClient.getProductById(itemObj.getProductId());
+                        if (productRes != null && productRes.getData() != null) {
+                            itemObj.setProductName(productRes.getData().getName());
+                        }
+                    } catch (Exception e) {
+                        itemObj.setProductName("Sản phẩm không rõ");
+                    }
+                });
+            }
+            return response;
+        }).collect(Collectors.toList());
+    }
 }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class PaymentController {
      * POST /api/payment/create
      */
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Map<String, String>> createPayment(
             @RequestBody PaymentRequest request,
             HttpServletRequest httpRequest) {
@@ -76,6 +78,7 @@ public class PaymentController {
      * GET /api/payment/{orderId}
      */
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<PaymentResponse> getPaymentStatus(@PathVariable String orderId) {
         return ResponseEntity.ok(paymentService.getPaymentByOrderId(orderId));
     }

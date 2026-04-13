@@ -53,11 +53,13 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     jwtHelper.validateToken(authHeader);
                     String userId = String.valueOf(jwtHelper.extractUserId(authHeader));
                     String username = jwtHelper.extractUsername(authHeader);
+                    String role = jwtHelper.extractRole(authHeader);
                     // Order/User Service
                     org.springframework.http.server.reactive.ServerHttpRequest modifiedRequest = exchange.getRequest()
                             .mutate()
                             .header("userId", userId)
                             .header("username", username)
+                            .header("X-User-Role", role)
                             .build();
 
                     return chain.filter(exchange.mutate().request(modifiedRequest).build());

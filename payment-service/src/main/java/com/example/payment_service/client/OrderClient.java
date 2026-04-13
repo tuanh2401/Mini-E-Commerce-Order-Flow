@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "order-service", configuration = FeignClientConfig.class)
 public interface OrderClient {
 
-    @GetMapping("/api/orders/{orderId}")
+    @GetMapping("/api/orders/internal/{orderId}")
     OrderDetailResponse getOrderById(@PathVariable("orderId") String orderId);
 }

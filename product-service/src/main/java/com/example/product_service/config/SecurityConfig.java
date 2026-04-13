@@ -1,7 +1,8 @@
-package com.example.order_service.config;
+package com.example.product_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,8 +29,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép truy cập ẩn danh vào các link này:
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/**","/api/orders/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/orders/internal/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        .requestMatchers("/actuator/**", "/v3/api-docs/**", "/api/products/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/products/internal/**").permitAll()
+
                         // Còn lại tất cả các API khác phải có Authentication (có thẻ mới cho vào)
                         .anyRequest().authenticated()
                 )

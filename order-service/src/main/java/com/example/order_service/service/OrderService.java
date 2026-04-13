@@ -11,5 +11,8 @@ public interface OrderService {
     OrderResponse getOrderById(String id);
     //Lấy lịch sử đơn hàng của 1 người dùng
     List<OrderResponse> getOrdersByUserId(Long userId);
+    
+    //Lấy tất cả đơn hàng (Dành cho Admin)
+    List<OrderResponse> getAllOrders();
 
 }
