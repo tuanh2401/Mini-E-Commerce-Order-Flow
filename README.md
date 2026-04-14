@@ -29,4 +29,4 @@ Dự án bao gồm các dịch vụ độc lập sau:
 3. **Mẫu thiết kế (Design Patterns)**: 
    - Áp dụng các *Generic Base Classes* (`BaseService`, `BaseRepository`) cho các CRUD Operations.
    - Quản lý và gom cụm Exception tập trung cho toàn bộ Microservices.
-4. **Tích hợp cổng Thanh Toán thực tế**: Luồng tích hợp thanh toán linh hoạt với VNPAY và MoMo (hỗ trợ chiến lược đa dịch vụ thanh toán - Multi-provider payment strategy), xử lý IPN/Callback.
+4. **Tích hợp cổng Thanh Toán thực tế**: Luồng tích hợp thanh toán linh hoạt với VNPAY  (hỗ trợ chiến lược đa dịch vụ thanh toán - Multi-provider payment strategy), xử lý IPN/Callback.
