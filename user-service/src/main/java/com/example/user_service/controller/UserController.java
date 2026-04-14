@@ -25,7 +25,7 @@ public class UserController {
         // Sửa lại: Dùng log xem thông tin, không dùng request
         log.info("User [{}] đang truy cập để xem thông tin cá nhân", userId);
 
-        return ResponseEntity.ok(userService.getUserById(userId));
+        return ResponseEntity.ok(userService.getById(userId));
     }
 
     // 2. CẬP NHẬT thông tin cá nhân của chính mình
@@ -37,21 +37,21 @@ public class UserController {
         // Chuyển log cập nhật xuống đúng hàm PUT này
         log.info("User [{}] đang yêu cầu CẬP NHẬT thông tin. Tên mới: {}", userId, request.getFullName());
 
-        return ResponseEntity.ok(userService.updateUser(userId, request));
+        return ResponseEntity.ok(userService.update(userId, request));
     }
 
     // 3. Lấy thông tin User theo ID (Dùng cho Admin hoặc các service khác gọi nội bộ)
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         log.info("Hệ thống đang truy vấn thông tin của User ID: {}", id);
-        return ResponseEntity.ok(userService.getUserById(id));
+        return ResponseEntity.ok(userService.getById(id));
     }
 
     // API dành riêng cho Nội bộ (Feign Client gọi sang)
     @GetMapping("/internal/{id}")
     public ResponseEntity<UserResponse> getInternalUserById(@PathVariable Long id) {
         log.info("[Bảo mật nội bộ] Cho phép truy vấn thông tin User ID: {}", id);
-        return ResponseEntity.ok(userService.getUserById(id));
+        return ResponseEntity.ok(userService.getById(id));
     }
 
     // 4. Cập nhật User bất kỳ (Dùng cho Admin)
@@ -61,7 +61,7 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request) {
         log.info("Admin đang cập nhật thông tin cho User ID: {}", id);
-        return ResponseEntity.ok(userService.updateUser(id, request));
+        return ResponseEntity.ok(userService.update(id, request));
     }
 
     // 5. API ĐỒNG BỘ NỘI BỘ (Gọi từ Auth Service)

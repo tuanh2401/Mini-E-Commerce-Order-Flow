@@ -1,7 +1,11 @@
+com\example\lib\base\AbstractBaseService.class
 com\example\lib\HelloService.class
+com\example\lib\base\BaseEntity.class
 com\example\lib\dto\PaymentProcessedEvent.class
 com\example\lib\exception\ErrorInfo.class
 com\example\lib\dto\ApiResponse.class
+com\example\lib\base\BaseService.class
 com\example\lib\dto\OrderCreatedEvent.class
 com\example\lib\dto\OrderItemEvent.class
 com\example\lib\util\JwtHelper.class
+com\example\lib\base\BaseRepository.class

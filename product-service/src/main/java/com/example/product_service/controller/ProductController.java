@@ -1,5 +1,4 @@
 package com.example.product_service.controller;
-
 import com.example.lib.dto.ApiResponse;
 import com.example.product_service.dto.ProductRequest;
 import com.example.product_service.dto.ProductResponse;
@@ -25,25 +24,25 @@ public class ProductController {
     // 1. TẠO MỚI SẢN PHẨM (POST)
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<ProductResponse>> create(@Valid @RequestBody ProductRequest request) {
         log.info("Nhận yêu cầu tạo sản phẩm mới tên: {}", request.getName());
         log.debug("Dữ liệu đầy đủ của yêu cầu là : {}", request);
-        ProductResponse response = productService.createProduct(request);
+        ProductResponse response = productService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product created Successfully", response));
     }
 
     // 2. LẤY TẤT CẢ DỮ LIỆU (GET)
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
-        List<ProductResponse> responses = productService.getAllProducts();
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAll() {
+        List<ProductResponse> responses = productService.getAll();
         return ResponseEntity.ok(ApiResponse.success("Fetched all products successfully", responses));
     }
 
     // 3. LẤY CHI TIẾT 1 SẢN PHẨM (GET)
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable Long id) {
-        ProductResponse response = productService.getProductById(id);
+    public ResponseEntity<ApiResponse<ProductResponse>> getById(@PathVariable Long id) {
+        ProductResponse response = productService.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Fetched product successfully", response));
     }
 
@@ -51,23 +50,23 @@ public class ProductController {
     @GetMapping("/internal/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getInternalProductById(@PathVariable Long id) {
         log.info("[Nội bộ] Order Service đang lấy thông tin sản phẩm ID: {}", id);
-        ProductResponse response = productService.getProductById(id);
+        ProductResponse response = productService.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Fetched product successfully", response));
     }
 
     // 4. SỬA SẢN PHẨM (PUT)
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-        ProductResponse response = productService.updateProduct(id, request);
+    public ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
+        ProductResponse response = productService.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Product updated successfully", response));
     }
 
     // 5. XÓA SẢN PHẨM (DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        productService.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", null));
     }
 

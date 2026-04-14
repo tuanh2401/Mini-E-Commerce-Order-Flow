@@ -1,11 +1,11 @@
 package com.example.payment_service.repository;
 
+import com.example.lib.base.BaseRepository;
 import com.example.payment_service.entity.Payment;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface PaymentRepository extends JpaRepository<Payment, String> {
+public interface PaymentRepository extends BaseRepository<Payment,String> {
     // Tìm payment theo orderId — dùng khi query trạng thái từ Controller
     Optional<Payment> findByOrderId(String orderId);
 

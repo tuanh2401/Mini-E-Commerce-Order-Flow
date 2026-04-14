@@ -1,5 +1,6 @@
 package com.example.payment_service.service.impl;
 
+import com.example.lib.base.AbstractBaseService;
 import com.example.lib.dto.OrderCreatedEvent;
 import com.example.lib.dto.PaymentProcessedEvent;
 import com.example.payment_service.client.OrderClient;
@@ -23,18 +24,23 @@ import java.util.Map;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentServiceImpl extends AbstractBaseService<Payment,PaymentRequest, PaymentResponse, String> implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentEventPublisher paymentEventPublisher;
     private final VNPAYService vnpayService;
     private final OrderClient orderClient;  // Feign Client gọi sang order-service
-
-    // ====================================================
-    // ① Được gọi bởi OrderCreatedConsumer (RabbitMQ)
-    //    Tạo bản ghi Payment với status PENDING khi đơn hàng mới được tạo
-    // ====================================================
+    // Nạp đủ 4 món vũ khí vào Constructor
+    public PaymentServiceImpl(PaymentRepository paymentRepository,
+                              PaymentEventPublisher paymentEventPublisher,
+                              VNPAYService vnpayService,
+                              OrderClient orderClient) {
+        super(paymentRepository);               // Gửi repo lên cho Cha Base
+        this.paymentRepository = paymentRepository;
+        this.paymentEventPublisher = paymentEventPublisher;
+        this.vnpayService = vnpayService;
+        this.orderClient = orderClient;
+    }
     @Override
     public void createPaymentFromEvent(OrderCreatedEvent event) {
         log.info("Tạo Payment PENDING cho orderId={}", event.getOrderId());
@@ -162,7 +168,16 @@ public class PaymentServiceImpl implements PaymentService {
     // ====================================================
     // Helper: map entity → DTO
     // ====================================================
-    private PaymentResponse mapToResponse(Payment payment) {
+    @Override
+    protected Payment mapToEntity(PaymentRequest request, Payment entity) {
+        if (entity == null) {
+            return new Payment();
+        }
+        return entity;
+    }
+
+    @Override
+    protected PaymentResponse mapToResponse(Payment payment) {
         PaymentResponse res = new PaymentResponse();
         res.setId(payment.getId());
         res.setOrderId(payment.getOrderId());
@@ -173,4 +188,5 @@ public class PaymentServiceImpl implements PaymentService {
         res.setCreatedAt(payment.getCreatedAt());
         return res;
     }
+
 }
