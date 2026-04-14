@@ -8,7 +8,7 @@ Dự án bao gồm các dịch vụ độc lập sau:
 - **User Service**: Quản lý thông tin người dùng.
 - **Product Service**: Quản lý danh mục, thông tin sản phẩm và số lượng tồn kho.
 - **Order Service**: Xử lý logic đặt hàng, kết nối với dữ liệu người dùng và sản phẩm qua Feign Client.
-- **Payment Service**: Xử lý giao dịch thanh toán, tích hợp Multi-provider payment strategy với **VNPAY** và **MoMo**.
+- **Payment Service**: Xử lý giao dịch thanh toán, tích hợp Multi-provider payment strategy với **VNPAY** .
 - **Shared Library (`my-library`)**: Thư viện dùng chung chứa các Base Service, Base Repository, Base Entity, các DTOs, Exceptions và Utils nhằm giảm thiểu mã lặp (code duplication) bằng việc áp dụng Java Generics.
 
 ## 🚀 Công nghệ sử dụng (Technologies Stack)
