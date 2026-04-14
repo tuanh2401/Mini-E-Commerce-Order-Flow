@@ -19,7 +19,7 @@ Dự án bao gồm các dịch vụ độc lập sau:
 - **Database**: CSDL quan hệ (MySQL/PostgreSQL) cho mỗi service độc lập nhằm tránh chia sẻ dữ liệu (Database-per-service pattern).
 - **Security**: Spring Security, JSON Web Token (JWT)
 - **Tài liệu API**: Swagger/OpenAPI 3
-- **Thanh toán**: VNPAY Sandbox API, MoMo API (HMAC SHA256 Signature verification)
+- **Thanh toán**: VNPAY Sandbox API (HMAC SHA256 Signature verification)
 - **Khác**: Lombok, MapStruct.
 
 ## ✨ Chức năng nổi bật
