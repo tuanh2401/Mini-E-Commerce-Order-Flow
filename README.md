@@ -1,4 +1,4 @@
-Dự án Hệ thống Thương mại Điện tử Thu nhỏ (Mini E-Commerce) được xây dựng theo kiến trúc Microservices sử dụng **Spring Boot** và **Spring Cloud**. Hệ thống quản lý toàn bộ luồng nghiệp vụ từ đăng ký người dùng, tìm kiếm sản phẩm, đặt hàng, xử lý thanh toán (VNPAY, MoMo), cho đến cập nhật tồn kho thông qua Event-Driven Architecture (RabbitMQ).
+Dự án Hệ thống Thương mại Điện tử Thu nhỏ (Mini E-Commerce) được xây dựng theo kiến trúc Microservices sử dụng **Spring Boot** và **Spring Cloud**. Hệ thống quản lý toàn bộ luồng nghiệp vụ từ đăng ký người dùng, tìm kiếm sản phẩm, đặt hàng, xử lý thanh toán (VNPAY), cho đến cập nhật tồn kho thông qua Event-Driven Architecture (RabbitMQ).
 
 ## 🏗️ Kiến trúc Hệ thống (Architecture)
 Dự án bao gồm các dịch vụ độc lập sau:
