@@ -1,0 +1,105 @@
+spring:
+  application:
+    name: product-service
+
+  # Database configuration
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=mini_ecommerce_product;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+
+  # Consul Discovery Configuration
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3          # Thử lại tối đa 3 lần rồi dừng/ném lỗi ra ngoài, không re-queue vô hạn
+          initial-interval: 2000ms
+
+  # Message Internationalization
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+server:
+  port: 8087
+
+# Allow Consul to call /actuator/health
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+debug: true
+
+# CAU HINH LOGGING
+logging:
+  level:
+    root: INFO
+    com.example.product_service: DEBUG
+  file:
+    name: logs/product-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Springdoc & OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api/products/v3/api-docs
+
+openapi:
+  title: Product Service
+  description: Product Service API Documentation
+  local-server-url: http://localhost:8082
+
+security:
+  public-endpoints: /api/products/v3/api-docs/**,/api/products/internal/**,/api/categories,/api/categories/**
+
+rabbitmq:
+  queue:
+    order-created: order.created
+  exchange:
+    order: order.exchange
+  routing-key:
+    order-created: order.created
+
+data:
+  redis:
+    host: localhost
+    port: 6379
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: products
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Đường dẫn thư mục lưu log -->
+    <property name="LOG_DIR" value="logs" />
+    <property name="APP_NAME" value="auth-service" />
+
+    <!-- 1. Cấu hình in ra Console (Màn hình) -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 2. Cấu hình ghi ra FILE và tự động xoay vòng (Rolling) -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Tên file log hiện tại đang ghi -->
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
+
+        <!-- Quy luật xoay vòng: Theo ngày và dung lượng -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Tên file log sau khi được cuộn và nén (lưu theo ngày) -->
+            <fileNamePattern>${LOG_DIR}/archived/${APP_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- Mỗi file tối đa 10MB thì tự động cắt sang file mới -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- Lưu tối đa 30 ngày log -->
+            <maxHistory>30</maxHistory>
+            <!-- Tổng dung lượng thư mục log tối đa 2GB -->
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3. Áp dụng cấu hình cho toàn hệ thống -->
+    <root level="INFO">
+        <appender-ref ref="Console" />
+        <appender-ref ref="RollingFile" />
+    </root>
+
+    <!-- Cấu hình riêng level DEBUG cho code của bạn -->
+    <logger name="com.example" level="DEBUG" additivity="false">
+        <appender-ref ref="Console" />
+        <appender-ref ref="RollingFile" />
+    </logger>
+
+</configuration>

@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: cart-service
+
+  # Database configuration
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=mini_ecommerce_cart;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+
+  # Consul Discovery Configuration
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+
+  # Message Internationalization
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+server:
+  port: 8090
+
+# Allow Consul to call /actuator/health
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    redis:
+      enabled: false
+# CAU HINH LOGGING
+logging:
+  level:
+    root: INFO
+    com.example.cart_service: DEBUG
+  file:
+    name: logs/cart-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+springdoc:
+  api-docs:
+    path: /api/cart/v3/api-docs
+
+openapi:
+  title: Cart Service
+  description: Open API Documentation
+  local-server-url: http://localhost:8090
+
+security:
+  public-endpoints: /api/cart/v3/api-docs/**,/api/cart/internal/**
+
+

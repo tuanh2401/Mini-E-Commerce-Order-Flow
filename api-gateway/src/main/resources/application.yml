@@ -1,0 +1,119 @@
+server:
+  port: 8082
+
+jwt:
+  public-key: classpath:public.pem
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+        service-name: api-gateway
+        register-health-check: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+
+      routes:
+        # Route cho Auth Service
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho User Service
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho Product Service
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - AuthenticationFilter
+        #Route cho Category
+        - id: category-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/categories/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho Order Service
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - AuthenticationFilter
+        # Route cho Payment Service
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - AuthenticationFilter
+        #Route cho Cart Service
+        - id: cart-service
+          uri: lb://CART-SERVICE
+          predicates:
+            - Path=/api/cart/**
+          filters:
+            - AuthenticationFilter
+            # Route cho Promotion Service
+        - id: promotion-service
+          uri: lb://PROMOTION-SERVICE
+          predicates:
+            - Path=/api/promotions/**
+          filters:
+            - AuthenticationFilter
+
+        # Route cho Dashboard Service
+        - id: dashboard-service
+          uri: lb://DASHBOARD-SERVICE
+          predicates:
+            - Path=/api/dashboard/**
+          filters:
+            - AuthenticationFilter
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth-service
+        url: /api/auth/v3/api-docs
+      - name: user-service
+        url: /api/users/v3/api-docs
+      - name: product-service
+        url: /api/products/v3/api-docs
+      - name: order-service
+        url: /api/orders/v3/api-docs
+      - name: payment-service
+        url: /api/payments/v3/api-docs
+      - name: cart-service
+        url: /api/cart/v3/api-docs
+      - name: promotion-service
+        url: /api/promotions/v3/api-docs
+      - name: dashboard-service
+        url: /api/dashboard/v3/api-docs

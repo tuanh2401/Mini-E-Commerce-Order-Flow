@@ -1,0 +1,34 @@
+server:
+  prefix: "author"
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.1.1.1:3316/ev_charge?useSSL=false&allowPublicKeyRetrieval=true
+    username: 1
+    password: 1
+    hikari:
+      schema: a
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: 10.38.61.144
+      port: 6379
+
+management:
+  health:
+    redis:
+      enabled: false
+
+config:
+  api:
+    whiteList:
+      - /api/**
+springdoc:
+  paths-to-match: /**

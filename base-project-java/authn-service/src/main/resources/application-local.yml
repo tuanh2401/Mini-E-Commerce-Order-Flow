@@ -1,0 +1,43 @@
+server:
+  port: 8071
+  prefix: "authn"
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${config.service-name}
+        enabled: true
+      enabled: true
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.1.1.1:3316/ev_charge?useSSL=false&allowPublicKeyRetrieval=true
+    username: 1
+    password: 1
+    hikari:
+      schema: a
+  jpa:
+    hibernate:
+      ddl-auto: none
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+config:
+  service-name: ev-authentication-service
+  api:
+    version: v1
+    whiteList:
+      - /api/**
+      - /callback/**
+
+management:
+  health:
+    redis:
+      enabled: false
+
+springdoc:
+  paths-to-match: /**

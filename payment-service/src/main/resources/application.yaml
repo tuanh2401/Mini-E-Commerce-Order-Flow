@@ -1,0 +1,106 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: payment-service
+
+  # ========== DATABASE ==========
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=mini_ecommerce_payment;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # ========== JPA ==========
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+
+  # ========== RABBITMQ DEFAULT ==========
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  # ========== CONSUL ==========
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+
+  # ========== i18n ==========
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+# ========== ACTUATOR ==========
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# ========== LOGGING ==========
+logging:
+  level:
+    root: INFO
+    com.example.payment_service: DEBUG
+  file:
+    name: logs/payment-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# ========== SWAGGER ==========
+springdoc:
+  api-docs:
+    path: /api/payments/v3/api-docs
+
+# ========== VNPAY ==========
+vnpay:
+  tmn-code: R311D0G4
+  hash-secret: XAMS1JKXO10FOW7Y8DYBRPJ022WHCF29
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://tuananhcommerce.com:8085/api/payments/vnpay-callback
+
+# ========== OPENAPI & SECURITY ==========
+openapi:
+  title: Payment Service
+  description: Payment Service API Documentation
+  local-server-url: http://localhost:8085
+
+security:
+  public-endpoints: /api/payments/vnpay-ipn,/api/payments/vnpay-callback,/api/payments/v3/api-docs/**,/api/payments/analytics/internal/**
+
+# ========== CALL ORDER SERVICE ==========
+config:
+  order:
+    url: http://localhost:8083
+
+# ========== CUSTOM RABBITMQ QUEUE/EXCHANGE ==========
+rabbitmq:
+  queue:
+    order-created: order.created.payment
+    payment-processed: payment.processed
+  exchange:
+    order: order.exchange
+    payment: payment.exchange
+  routing-key:
+    order-created: order.created
+    payment-processed: payment.processed
+
+data:
+  redis:
+    host: localhost
+    port: 6379

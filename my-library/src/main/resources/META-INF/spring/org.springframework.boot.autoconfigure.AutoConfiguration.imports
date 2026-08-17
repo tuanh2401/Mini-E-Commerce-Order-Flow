@@ -1,0 +1,9 @@
+com.example.lib.config.security.LibSecurityAutoConfig
+com.example.lib.config.swagger.BaseOpenApiConfig
+com.example.lib.config.security.BaseSecurityConfig
+com.example.lib.config.feign.FeignAutoConfig
+com.example.lib.config.rabbitmq.RabbitMQAutoConfig
+com.example.lib.config.redis.RedisConfig
+com.example.lib.config.security.I18nConfig
+com.example.lib.config.minio.MinioConfig
+com.example.lib.config.audit.AuditingConfig

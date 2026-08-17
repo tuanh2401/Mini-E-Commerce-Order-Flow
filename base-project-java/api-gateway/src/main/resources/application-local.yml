@@ -1,0 +1,38 @@
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ev-api-gateway-service
+
+config:
+  service-name: ev-api-gateway-service
+  api:
+    authn: localhost:8071
+    author: localhost:8082
+    charge: localhost:8083
+    config: localhost:8084
+    customer: localhost:8085
+    device: localhost:8086
+    location: localhost:8087
+    marketing: localhost:8088
+    notification: localhost:8089
+    payment: localhost:8090
+    point: localhost:8091
+    report: localhost:8092
+    user: localhost:8093
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  show-actuator: false
+  swagger-ui:
+    urls:
+      - name: ev-api-gateway-service
+        url: /v3/api-docs
+      - name: ev-authentication-service
+        url: /swagger-authn/v3/api-docs
+      - name: ev-authorization-service
+        url: /swagger-author/v3/api-docs

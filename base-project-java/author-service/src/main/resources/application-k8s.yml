@@ -1,0 +1,67 @@
+server:
+  http2:
+    enabled: true
+  port: 8082
+  prefix: "author"
+  servlet:
+    context-path: /
+  shutdown: graceful
+
+spring:
+  application:
+    name: ${config.service-name}
+  cloud:
+    consul:
+      enabled: true
+      config:
+        enabled: false
+      discovery:
+        enabled: true
+        instance-id: ${KUBERNETES_POD_NAME}
+        service-name: ${config.service-name}
+        health-check-path: /actuator/health
+        prefer-ip-address: true
+        prefer-agent-address: false
+        health-check-interval: 25s
+        health-check-critical-timeout: 90s
+        register: true
+        deregister: true
+      host: consul-server.consul.svc.cluster.local
+      port: 8500
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.1.1.1:3316/ev_charge?useSSL=false&allowPublicKeyRetrieval=true
+    username: 1
+    password: 1
+    hikari:
+      schema: a
+  jpa:
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: 192.168.100.223
+      port: 6379
+
+config:
+  service-name: ev-authorization-service
+  api:
+    version: v1
+    whiteList:
+      - /api/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health,prometheus,metrics"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  health:
+    redis:
+      enabled: false
+
+springdoc:
+  paths-to-match: /**

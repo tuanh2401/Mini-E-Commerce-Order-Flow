@@ -1,0 +1,100 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: user-service
+
+  # ========== DATABASE ==========
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=mini_ecommerce_user;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # ========== JPA ==========
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    stream:
+      username: guest
+      password: guest
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # ========== CONSUL ==========
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+
+  # ========== i18n ==========
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+debug: true
+
+# ========== ACTUATOR ==========
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# ========== LOGGING ==========
+logging:
+  level:
+    root: INFO
+    com.example.user_service: DEBUG
+  file:
+    name: logs/user-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# ========== SWAGGER ==========
+springdoc:
+  api-docs:
+    path: /api/users/v3/api-docs
+
+# ========== OPENAPI & SECURITY ==========
+openapi:
+  title: User Service
+  description: User Service API Documentation
+  local-server-url: http://localhost:8088
+
+security:
+  public-endpoints: /api/users/v3/api-docs/**,/api/users/internal/**,/api/users/analytics/internal/**
+
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: avatars
+
+rabbitmq:
+  queue:
+    order-paid: user.membership.queue
+  exchange:
+    order: order.exchange
+  routing-key:
+    order-paid: order.paid

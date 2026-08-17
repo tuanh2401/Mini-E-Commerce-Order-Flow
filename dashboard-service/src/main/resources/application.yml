@@ -1,0 +1,43 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: dashboard-service
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.springframework.web: INFO
+    com.example: DEBUG
+
+springdoc:
+  api-docs:
+    path: /api/dashboard/v3/api-docs
+
+openapi:
+  title: Dashboard Service
+  description: Dashboard Service API Documentation
+  version: 1.0.0
+  local-server-url: http://localhost:8092
+
+security:
+  public-endpoints: >
+    /api/dashboard/v3/api-docs,
+    /api/dashboard/v3/api-docs/**,
+    /api/dashboard/stream

@@ -1,0 +1,96 @@
+spring:
+  application:
+    name: order-service
+
+  # Database configuration
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=mini_ecommerce_order;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.SQLServerDialect
+
+  # Consul Discovery Configuration
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+        ip-address: 127.0.0.1
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  # Message Internationalization
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+server:
+  port: 8083
+
+# Allow Consul to call /actuator/health
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# CAU HINH LOGGING
+logging:
+  level:
+    root: INFO
+    com.example.order_service: DEBUG
+  file:
+    name: logs/order-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Springdoc & OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api/orders/v3/api-docs
+
+openapi:
+  title: Order Service
+  description: Open API Documentation
+  local-server-url: http://localhost:8083
+
+security:
+  public-endpoints: /api/orders/v3/api-docs/**,/api/orders/internal/**,/api/orders/analytics/internal/**
+
+rabbitmq:
+  queue:
+    order-created: order.created
+    payment-processed: payment.order.queue
+  exchange:
+    order: order.exchange
+    payment: payment.exchange
+  routing-key:
+    order-created: order.created
+    payment-processed: payment.processed
+
+data:
+  redis:
+    host: localhost
+    port: 6379
+
+order:
+  payment-timeout-minutes: 10

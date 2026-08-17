@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: auth-service
+
+  # Database SQL Server - instance SQL2025
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=SQL2025;databaseName=auth_db;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: '123456'  # Bọc trong nháy đơn để tránh lỗi định dạng số hoặc chuỗi đặc biệt
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  # JPA & Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  # Consul Discovery Configuration
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+        prefer-ip-address: true
+        ip-address: 127.0.0.1  # Ép 127.0.0.1 để tránh lỗi adapter của WSL/Hyper-V
+
+  # Đa ngôn ngữ (i18n)
+  messages:
+    basename: messages,lib-messages
+    encoding: UTF-8
+
+# Cấu hình Port chạy Service
+server:
+  port: 8081
+
+# JWT - Secret key / Certificate
+jwt:
+  expiration: 900000
+  refresh-expiration: 604800000
+  keystore:
+    path: classpath:keystore.jks
+    password: mypassword
+    alias: jwt-key
+
+# Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# SpringDoc OpenAPI Swagger
+springdoc:
+  api-docs:
+    path: /api/auth/v3/api-docs
+
+# Custom properties cấu hình OpenAPI & Security riêng của bạn
+openapi:
+  title: Auth Service
+  description: Auth Service API Documentation
+  local-server-url: http://localhost:8081
+
+security:
+  public-endpoints: /api/auth/**,/error
+
+rabbitmq:
+  exchange:
+    email: email.exchange
+  queue:
+    email-verification: email-verification.queue
+  routing-key:
+    email-verification: email-verification.routing.key
+
+data:
+  redis:
+    host: localhost
+    port: 6379

@@ -1,0 +1,22 @@
+# Maven
+**/target/
+
+# Logs
+**/logs/
+*.log
+*.log.*
+*.tmp
+*.gz
+
+# Java
+*.class
+*.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

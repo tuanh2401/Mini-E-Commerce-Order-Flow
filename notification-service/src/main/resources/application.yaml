@@ -1,0 +1,77 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: notification-service
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nguyentuananh240104@gmail.com
+    password: zpxt gtyt chhy dzln
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+
+  # Consul Discovery Configuration
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        register-health-check: true
+
+logging:
+  level:
+    root: INFO
+    com.example.notification_service: DEBUG
+  file:
+    name: logs/notification-service.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+app:
+  email:
+    verification-template: |
+      <!DOCTYPE html>
+      <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
+          <h2 style="color: #2c3e50; text-align: center;">Chào mừng bạn đến với Mini E-Commerce!</h2>
+          <p>Xin chào <strong>%s</strong>,</p>
+          <p>Cảm ơn bạn đã đăng ký tài khoản tại hệ thống của chúng tôi. Để hoàn tất, vui lòng click nút bên dưới:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="%s" style="background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">Xác nhận tài khoản</a>
+            <a href="%s" style="background-color: #e74c3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-left: 10px;">Đây không phải tôi</a>
+          </div>
+      
+          <p style="color: #e74c3c;"><strong>Lưu ý:</strong> Đường link này có hiệu lực trong vòng 15 phút.</p>
+        </div>
+      </body>
+      </html>
+
+rabbitmq:
+  exchange:
+    email: email.exchange
+  queue:
+    email-verification: email-verification.queue
+  routing-key:
+    email-verification: email-verification.routing.key
+
+data:
+  redis:
+    host: localhost
+    port: 6379
