@@ -28,6 +28,9 @@ public class ProductResponse extends BaseDto<Long> {
     @Positive(message = "Giá sản phẩm phải là số dương lớn hơn 0", groups = {Create.class, Update.class})
     private BigDecimal price;
 
+    // Giá gốc niêm yết (nếu có để hiển thị giảm giá riêng biệt)
+    private BigDecimal originalPrice;
+
     // Validate: Số lượng tồn kho bắt buộc và không được âm (tối thiểu bằng 0)
     @NotNull(message = "Số lượng tồn kho không được để trống", groups = {Create.class, Update.class})
     @Min(value = 0, message = "Số lượng tồn kho tối thiểu phải bằng 0", groups = {Create.class, Update.class})

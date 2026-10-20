@@ -12,12 +12,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import com.example.lib.service.MinioService;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/products/reviews")
 public class ProductReviewController extends BaseController<ProductReviewService, ReviewResponse, Long> {
+
+    private final MinioService minioService;
+
+    public ProductReviewController(MinioService minioService) {
+        this.minioService = minioService;
+    }
 
     /**
      * Ghi đè API Thêm đánh giá mới để cấu hình Phân quyền bảo mật.
@@ -66,5 +77,27 @@ public class ProductReviewController extends BaseController<ProductReviewService
         log.info("Nhận yêu cầu lấy thống kê đánh giá của sản phẩm ID [{}]", productId);
         ReviewSummaryResponse summary = service.getReviewSummary(productId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, summary));
+    }
+
+    /**
+     * API Upload hình ảnh review lên MinIO Bucket "reviews"
+     * URL: POST /api/products/reviews/upload-images
+     */
+    @PostMapping(value = "/upload-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<BaseResponse<List<String>>> uploadReviewImages(
+            @RequestParam("files") MultipartFile[] files) {
+        log.info("Nhận yêu cầu tải lên [{}] ảnh đánh giá sản phẩm lên MinIO", files.length);
+        List<String> uploadedUrls = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (file != null && !file.isEmpty()) {
+                // Đẩy trực tiếp vào bucket "reviews" (hoặc "review")
+                String fileUrl = minioService.uploadFileToBucket(file, "reviews");
+                uploadedUrls.add(fileUrl);
+            }
+        }
+
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, uploadedUrls));
     }
 }

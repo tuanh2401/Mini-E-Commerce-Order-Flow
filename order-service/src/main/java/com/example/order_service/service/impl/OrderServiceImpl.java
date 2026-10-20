@@ -2,6 +2,7 @@ package com.example.order_service.service.impl;
 
 import com.example.lib.model.dto.OrderCreatedEvent;
 import com.example.lib.model.dto.OrderItemEvent;
+import com.example.lib.model.dto.OrderPaidEvent;
 import com.example.lib.model.exception.BaseResourceNotFoundException;
 import com.example.lib.model.exception.BusinessException;
 import com.example.lib.model.response.BaseResponse;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,16 +48,18 @@ public class OrderServiceImpl extends BaseService<OrderRepository, OrderResponse
     private final OrderEventPublisher orderEventPublisher;
     private final MessageSource messageSource;
     private final PromotionClient promotionClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     // OrderRepository và OrderMapper đã tự động được tiêm ở BaseService cha.
     public OrderServiceImpl(ProductClient productClient, UserClient userClient,
                             OrderEventPublisher orderEventPublisher, MessageSource messageSource,
-                            PromotionClient promotionClient) {
+                            PromotionClient promotionClient, KafkaTemplate<String, Object> kafkaTemplate) {
         this.productClient = productClient;
         this.userClient = userClient;
         this.orderEventPublisher = orderEventPublisher;
         this.messageSource = messageSource;
         this.promotionClient = promotionClient;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Override
@@ -287,7 +291,11 @@ public class OrderServiceImpl extends BaseService<OrderRepository, OrderResponse
     public boolean hasPurchasedProduct(Long userId, Long productId) {
         List<Order> orders = repository.findByUserId(userId);
         return orders.stream()
-                .filter(order -> "PAID".equalsIgnoreCase(order.getStatus()))
+                // Cho phép đánh giá nếu đơn ở trạng thái đã thanh toán hoặc đang/đã giao thành công
+                .filter(order -> "PAID".equalsIgnoreCase(order.getStatus())
+                        || "PROCESSING".equalsIgnoreCase(order.getStatus())
+                        || "SHIPPING".equalsIgnoreCase(order.getStatus())
+                        || "DELIVERED".equalsIgnoreCase(order.getStatus()))
                 .anyMatch(order -> order.getItems().stream().anyMatch(item -> item.getProductId().equals(productId)));
     }
 
@@ -302,5 +310,45 @@ public class OrderServiceImpl extends BaseService<OrderRepository, OrderResponse
             log.error("Lỗi parse JSON error message: {}", e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderResponse updateOrderStatus(String orderId , String newStatus) {
+        //Tìm đơn hàng theo ID
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+        //Chuẩn hóa trạng thái thành chữ hoa
+        String statusUpper = newStatus.trim().toUpperCase();
+        //Kiểm tra tính hợp lệ của trạng thái
+        List<String> validStatuses = List.of("PENDING" , "PAID" , "PROCESSING" , "SHIPPING" , "DELIVERED" , "CANCELLED");
+        if(!validStatuses.contains(statusUpper)){
+            throw new BusinessException(HttpStatus.BAD_REQUEST,"Trạng thái đơn hàng không hợp lệ: " + newStatus,null);
+        }
+        String oldStatus = order.getStatus();
+        log.info("Cập nhật trạng thái đơn hàng [{}] từ [{}] sang [{}]",orderId,oldStatus,statusUpper);
+        //Lưu trạng thái mới vào database
+        order.setStatus(statusUpper);
+        Order savedOrder = repository.save(order);
+
+        // Nếu đơn chuyển sang DELIVERED và trước đó chưa DELIVERED
+        if ("DELIVERED".equalsIgnoreCase(statusUpper) && !"DELIVERED".equalsIgnoreCase(oldStatus)) {
+            // Đối với đơn COD (chưa qua thanh toán online), khi giao thành công sẽ bắn OrderPaidEvent để tích điểm
+            if ("COD".equalsIgnoreCase(order.getPaymentMethod())) {
+                try {
+                    OrderPaidEvent orderPaidEvent = new OrderPaidEvent(
+                            order.getId(),
+                            order.getUserId(),
+                            order.getTotalPrice()
+                    );
+                    kafkaTemplate.send("order-paid-topic", order.getId(), orderPaidEvent);
+                    log.info("[Kafka Producer] Đã bắn sự kiện OrderPaidEvent cho đơn COD hoàn tất [{}] lên topic [order-paid-topic]!", order.getId());
+                } catch (Exception e) {
+                    log.error("Lỗi khi bắn sự kiện OrderPaidEvent cho đơn COD [{}]: {}", order.getId(), e.getMessage());
+                }
+            }
+        }
+
+        return mapper.toDto(savedOrder);
     }
 }

@@ -37,8 +37,8 @@ public class Payment extends BaseEntity<String> {
     @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(name = "vnp_txn_ref")
-    private String vnpTxnRef;
+    @Column(name = "order_code")
+    private Long orderCode;
 
     @Column(name = "transaction_id")
     private String transactionId;

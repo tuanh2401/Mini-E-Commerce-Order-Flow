@@ -5,6 +5,12 @@ spring:
   application:
     name: notification-service
 
+  # ========== KAFKA ==========
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+
   rabbitmq:
     host: localhost
     port: 5672
@@ -57,8 +63,27 @@ app:
             <a href="%s" style="background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">Xác nhận tài khoản</a>
             <a href="%s" style="background-color: #e74c3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-left: 10px;">Đây không phải tôi</a>
           </div>
-      
           <p style="color: #e74c3c;"><strong>Lưu ý:</strong> Đường link này có hiệu lực trong vòng 15 phút.</p>
+        </div>
+      </body>
+      </html>
+
+    otp-template: |
+      <!DOCTYPE html>
+      <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #d97706; text-align: center; margin-bottom: 20px;">DungThamMobile Security</h2>
+          <p>Xin chào <strong>%s</strong>,</p>
+          <p>Bạn vừa yêu cầu thay đổi địa chỉ Email nhận thông báo trên hệ thống. Dưới đây là mã xác thực (OTP) của bạn:</p>
+          <div style="text-align: center; margin: 25px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1e293b; background: #f3f4f6; padding: 12px 24px; border-radius: 8px; border: 2px dashed #d97706; display: inline-block;">
+              %s
+            </span>
+          </div>
+          <p style="color: #dc2626; font-size: 14px; text-align: center;">⚠️ Mã xác thực này có hiệu lực trong vòng <strong>60 giây</strong>. Vui lòng không chia sẻ mã này cho bất kỳ ai!</p>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;"/>
+          <p style="font-size: 12px; color: #6b7280; text-align: center;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ hỗ trợ.</p>
         </div>
       </body>
       </html>

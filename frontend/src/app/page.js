@@ -8,6 +8,7 @@ export default function HomePage() {
 
   // Trạng thái phản hồi sự hài lòng của khách hàng
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Bộ lọc danh mục của phần Flash Sale
   const [flashSaleTab, setFlashSaleTab] = useState("ALL");
@@ -16,39 +17,55 @@ export default function HomePage() {
   const sliderRef = useRef(null);
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Ref điều khiển cuộn cho danh mục gợi ý "Gợi ý cho bạn"
-  const categoriesScrollRef = useRef(null);
+  const handleQuickAddToCart = (prod, e) => {
+    if (e) e.preventDefault();
+    try {
+      const existing = JSON.parse(localStorage.getItem("dtm_cart_items") || "[]");
+      const index = existing.findIndex(item => item.id === prod.id);
+      if (index >= 0) {
+        existing[index].quantity += 1;
+      } else {
+        existing.push({
+          id: prod.id,
+          name: prod.name,
+          price: prod.price,
+          quantity: 1,
+          imageUrl: prod.imageUrl || prod.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80"
+        });
+      }
+      localStorage.setItem("dtm_cart_items", JSON.stringify(existing));
+      window.dispatchEvent(new Event("cart_updated"));
 
-  const banners = [
-    "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=700&q=80", 
-    "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80", 
-    "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=700&q=80", 
-    "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=700&q=80", 
-    "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=700&q=80", 
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=700&q=80"  
-  ];
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        axios.post("http://localhost:8082/api/cart/items", { productId: prod.id, quantity: 1 }, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).catch(err => console.warn(err));
+      }
 
-  const suggestionCategories = [
-    { name: "Camera an ninh", img: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=150&q=80" },
-    { name: "Máy sấy quần áo", img: "https://images.unsplash.com/photo-1545173168-9f19472ef7f4?w=150&q=80" },
-    { name: "Điện gia dụng", img: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&q=80" },
-    { name: "Quạt máy", img: "https://images.unsplash.com/photo-1618945037805-e970a04944d1?w=150&q=80" },
-    { name: "Thiết bị bếp", img: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&q=80" },
-    { name: "Nồi cơm điện", img: "https://images.unsplash.com/photo-1590794056226-79ef3a814c99?w=150&q=80" },
-    { name: "Máy xay sinh tố", img: "https://images.unsplash.com/photo-1578643463396-0997cb5328c1?w=150&q=80" },
-    { name: "Loa", img: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=150&q=80" },
-    { name: "Sạc cáp", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=150&q=80" },
-    { name: "Tai nghe", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&q=80" },
-    { name: "Sạc dự phòng", img: "https://images.unsplash.com/photo-1609592424083-d5d1796d115e?w=150&q=80" },
-    { name: "Ốp lưng", img: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=150&q=80" },
-    { name: "Bao da", img: "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=150&q=80" },
-    { name: "Chuột", img: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=150&q=80" },
-    { name: "Bàn phím", img: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=150&q=80" },
-    { name: "Nồi chiên không dầu", img: "https://images.unsplash.com/photo-1621972750749-0fbb1abb7736?w=150&q=80" },
-    { name: "Cây nước nóng lạnh", img: "https://images.unsplash.com/photo-1585620387744-8cbab83215c2?w=150&q=80" },
-    { name: "Máy hút ẩm", img: "https://images.unsplash.com/photo-1608222351212-18fe0ec7b13b?w=150&q=80" },
-    { name: "Máy cũ", img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&q=80" }
-  ];
+      setToastMessage(`Đã thêm "${prod.name}" vào giỏ hàng!`);
+      setTimeout(() => setToastMessage(""), 3500);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const [banners, setBanners] = useState([
+    { id: 1, imageUrl: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=700&q=80", title: "Khuyến mãi 1" },
+    { id: 2, imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700&q=80", title: "Khuyến mãi 2" },
+    { id: 3, imageUrl: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=700&q=80", title: "Khuyến mãi 3" },
+    { id: 4, imageUrl: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=700&q=80", title: "Khuyến mãi 4" }
+  ]);
+
+  const [promoBadges, setPromoBadges] = useState([
+    { id: 1, title: "Tải App nhận voucher 10%", iconUrl: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80", linkUrl: "#" },
+    { id: 2, title: "HSSV Giảm thêm đến 10%", iconUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=150&q=80", linkUrl: "#" },
+    { id: 3, title: "Rẻ hơn khi mua kèm Sim", iconUrl: "https://images.unsplash.com/photo-1562408590-e32931084e23?w=150&q=80", linkUrl: "#" },
+    { id: 4, title: "Gia dụng bảo hành 1 đổi 1", iconUrl: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&q=80", linkUrl: "#" },
+    { id: 5, title: "Trợ giá thu cũ đổi mới", iconUrl: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&q=80", linkUrl: "#" }
+  ]);
+
+
 
   useEffect(() => {
     // Gọi API lấy danh sách sản phẩm từ Backend thông qua Gateway
@@ -61,16 +78,31 @@ export default function HomePage() {
         console.error("Lỗi lấy sản phẩm: ", err);
       })
       .finally(() => setLoading(false));
-  }, []);
 
-  // Ánh xạ linh hoạt từ tên danh mục gợi ý sang URL Category ID trong DB
-  const getCategoryLink = (catName) => {
-    const name = catName.toLowerCase();
-    if (name.includes("điện thoại") || name.includes("phone")) return "/category/1";
-    if (name.includes("laptop") || name.includes("máy tính")) return "/category/2";
-    if (name.includes("phụ kiện") || name.includes("tai nghe") || name.includes("sạc") || name.includes("ốp") || name.includes("bao da") || name.includes("loa") || name.includes("chuột") || name.includes("bàn phím")) return "/category/3";
-    return "#";
-  };
+    // Gọi API lấy danh sách Banner từ MinIO / DB
+    axios.get("http://localhost:8082/api/products/banners")
+      .then(res => {
+        const bannerList = res.data?.data || [];
+        if (Array.isArray(bannerList) && bannerList.length > 0) {
+          setBanners(bannerList);
+        }
+      })
+      .catch(err => {
+        console.warn("Chưa tải được banner động, sử dụng banner mặc định", err);
+      });
+
+    // Gọi API lấy danh sách Badge quảng cáo từ MinIO / DB
+    axios.get("http://localhost:8082/api/products/badges")
+      .then(res => {
+        const badgeList = res.data?.data || [];
+        if (Array.isArray(badgeList) && badgeList.length > 0) {
+          setPromoBadges(badgeList);
+        }
+      })
+      .catch(err => {
+        console.warn("Chưa tải được badges động, sử dụng mặc định", err);
+      });
+  }, []);
 
   // Xử lý hiển thị đường dẫn hình ảnh thông minh (Hỗ trợ cả link ngoài và link MinIO)
   const getProductImage = (imageUrl) => {
@@ -113,15 +145,7 @@ export default function HomePage() {
     setActiveSlide(index);
   };
 
-  // Cuộn slide danh mục gợi ý
-  const handleScrollCategories = (direction) => {
-    if (categoriesScrollRef.current) {
-      const container = categoriesScrollRef.current;
-      const scrollAmount = container.clientWidth / 2;
-      const targetScroll = container.scrollLeft + (direction === "next" ? scrollAmount : -scrollAmount);
-      container.scrollTo({ left: targetScroll, behavior: "smooth" });
-    }
-  };
+
 
   // Phân loại sản phẩm theo Tên Danh mục
   const phones = products.filter(prod => {
@@ -139,12 +163,18 @@ export default function HomePage() {
     return catName.includes("phụ kiện") || catName.includes("accessory");
   });
 
+  const appliances = products.filter(prod => {
+    const catName = (prod.categoryName || "").toLowerCase();
+    return prod.categoryId === 4 || catName.includes("điện máy") || catName.includes("điện tử") || catName.includes("appliance");
+  });
+
   // Lọc sản phẩm hiển thị riêng cho khu vực Flash Sale khi bấm tab
   const getFlashSaleProducts = () => {
     if (flashSaleTab === "ALL") return products;
     if (flashSaleTab === "PHONE") return phones;
     if (flashSaleTab === "LAPTOP") return laptops;
     if (flashSaleTab === "ACCESSORY") return accessories;
+    if (flashSaleTab === "APPLIANCE") return appliances;
     return products;
   };
 
@@ -155,40 +185,25 @@ export default function HomePage() {
       
       {/* 1. KHU VỰC 5 KHUNG BADGE QUẢNG CÁO */}
       <section className="promo-badges-row">
-        <div className="badge-item">
-          <div className="badge-icon-box">
-            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=150&q=80" alt="App" />
-          </div>
-          <span>Tải App nhận voucher 10%</span>
-        </div>
+        {promoBadges.map((badge, idx) => {
+          const content = (
+            <div className="badge-item" key={badge.id || idx}>
+              <div className="badge-icon-box">
+                <img src={getProductImage(badge.iconUrl)} alt={badge.title} />
+              </div>
+              <span>{badge.title}</span>
+            </div>
+          );
 
-        <div className="badge-item">
-          <div className="badge-icon-box">
-            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150&q=80" alt="HSSV" />
-          </div>
-          <span>HSSV Giảm thêm đến 10%</span>
-        </div>
-
-        <div className="badge-item">
-          <div className="badge-icon-box">
-            <img src="https://images.unsplash.com/photo-1562408590-e32931084e23?w=150&q=80" alt="Sim" />
-          </div>
-          <span>Rẻ hơn khi mua kèm Sim</span>
-        </div>
-
-        <div className="badge-item">
-          <div className="badge-icon-box">
-            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&q=80" alt="Gia dung" />
-          </div>
-          <span>Gia dụng bảo hành 1 đổi 1</span>
-        </div>
-
-        <div className="badge-item">
-          <div className="badge-icon-box">
-            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&q=80" alt="Thu cu" />
-          </div>
-          <span>Trợ giá thu cũ đổi mới</span>
-        </div>
+          if (badge.linkUrl && badge.linkUrl !== "#") {
+            return (
+              <a href={badge.linkUrl} key={badge.id || idx} style={{ textDecoration: "none", color: "inherit" }}>
+                {content}
+              </a>
+            );
+          }
+          return content;
+        })}
       </section>
 
       {/* 2. KHU VỰC ĐƯỜNG CHẠY BANNER CHUNG */}
@@ -198,11 +213,22 @@ export default function HomePage() {
         </button>
         
         <div className="banner-slides-wrapper" ref={sliderRef} onScroll={handleScroll}>
-          {banners.map((url, idx) => (
-            <div className="banner-slide" key={idx}>
-              <img src={url} alt={`Banner ${idx + 1}`} />
-            </div>
-          ))}
+          {banners.map((item, idx) => {
+            const imgUrl = typeof item === "string" ? item : (item.imageUrl || item.image);
+            const link = typeof item === "object" && item.linkUrl ? item.linkUrl : "#";
+            const title = typeof item === "object" && item.title ? item.title : `Banner ${idx + 1}`;
+            return (
+              <div className="banner-slide" key={item.id || idx}>
+                {link && link !== "#" ? (
+                  <a href={link}>
+                    <img src={getProductImage(imgUrl)} alt={title} />
+                  </a>
+                ) : (
+                  <img src={getProductImage(imgUrl)} alt={title} />
+                )}
+              </div>
+            );
+          })}
         </div>
         
         <button className="slider-arrow-btn right" onClick={() => handleArrowClick("next")}>
@@ -224,6 +250,7 @@ export default function HomePage() {
             { id: 1, name: "Điện thoại", img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&q=80" },
             { id: 2, name: "Laptop", img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&q=80" },
             { id: 3, name: "Phụ kiện", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80" },
+            { id: 4, name: "Điện máy", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=100&q=80" },
           ].map((cat, idx) => (
             <a href={`/category/${cat.id}`} className="badge-item" key={idx}>
               <div className="badge-icon-box" style={{ borderRadius: "50%" }}>
@@ -235,20 +262,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. SẢN PHẨM KHUYẾN MÃI HOT (SHOPEE STYLE - FLASH SALE) */}
+      {/* 4. SẢN PHẨM NỔI BẬT & BÁN CHẠY (THAY THẾ FLASH SALE) */}
       <section className="shopee-flashsale-section">
         <div className="shopee-flashsale-header">
           <div className="flashsale-title">
-            <span className="lightning-icon">⚡</span>
-            <h2>FLASH SALE</h2>
-            <div className="countdown-timer">
-              <span>02</span>:<span>45</span>:<span>18</span>
-            </div>
+            <span className="lightning-icon" style={{ color: "#ef4444" }}>🔥</span>
+            <h2>SẢN PHẨM NỔI BẬT</h2>
           </div>
           
           <div className="shopee-tabs">
             <button className={`tab-item ${flashSaleTab === "ALL" ? "active" : ""}`} onClick={() => setFlashSaleTab("ALL")}>
-              Gợi ý cho bạn
+              Tất cả
             </button>
             <button className={`tab-item ${flashSaleTab === "PHONE" ? "active" : ""}`} onClick={() => setFlashSaleTab("PHONE")}>
               Điện thoại hot
@@ -258,6 +282,9 @@ export default function HomePage() {
             </button>
             <button className={`tab-item ${flashSaleTab === "ACCESSORY" ? "active" : ""}`} onClick={() => setFlashSaleTab("ACCESSORY")}>
               Phụ kiện giá tốt
+            </button>
+            <button className={`tab-item ${flashSaleTab === "APPLIANCE" ? "active" : ""}`} onClick={() => setFlashSaleTab("APPLIANCE")}>
+              Điện máy hot
             </button>
           </div>
         </div>
@@ -270,14 +297,17 @@ export default function HomePage() {
           <div className="shopee-product-grid">
             {flashSaleList.map(prod => {
               const specs = getProductSpecs(prod.description);
-              const originalPrice = Math.round(prod.price * 1.35);
+              const hasDiscount = prod.originalPrice && Number(prod.originalPrice) > Number(prod.price);
+              const discountPercent = hasDiscount ? Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100) : 0;
               
               return (
                 <div className="shopee-product-card" key={prod.id}>
-                  <div className="shopee-discount-badge">
-                    <span>GIẢM</span>
-                    <strong>35%</strong>
-                  </div>
+                  {hasDiscount && (
+                    <div className="shopee-discount-badge">
+                      <span>GIẢM</span>
+                      <strong>{discountPercent}%</strong>
+                    </div>
+                  )}
 
                   {/* Bấm vào ảnh dẫn tới chi tiết */}
                   <a href={`/product/${prod.id}`} className="shopee-card-img-box">
@@ -307,9 +337,11 @@ export default function HomePage() {
                     <span className="shopee-current-price">
                       {prod.price?.toLocaleString()}đ
                     </span>
-                    <span className="shopee-original-price">
-                      {originalPrice.toLocaleString()}đ
-                    </span>
+                    {hasDiscount && (
+                      <span className="shopee-original-price">
+                        {Number(prod.originalPrice).toLocaleString()}đ
+                      </span>
+                    )}
                   </div>
 
                   <div className="shopee-sales-progress-bar">
@@ -447,7 +479,16 @@ export default function HomePage() {
                     <span className="shopee-current-price">{prod.price?.toLocaleString()}đ</span>
                     <span className="shopee-original-price">{originalPrice.toLocaleString()}đ</span>
                   </div>
-                  <a href={`/product/${prod.id}`} className="shopee-card-btn">Xem chi tiết</a>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    <a href={`/product/${prod.id}`} className="shopee-card-btn" style={{ background: "#f1f5f9", color: "#334155", padding: "8px 4px", fontSize: "13px" }}>Xem chi tiết</a>
+                    <button 
+                      onClick={(e) => handleQuickAddToCart(prod, e)} 
+                      className="shopee-card-btn"
+                      style={{ padding: "8px 4px", fontSize: "13px" }}
+                    >
+                      🛒 Thêm giỏ
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -455,47 +496,110 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* 8. GỢI Ý CHO BẠN (DANH MỤC GỢI Ý ĐẶC THÙ CÓ MŨI TÊN DI CHUYỂN KÉO NGANG) */}
-      <section className="suggestions-section">
-        <h3 className="section-title">Gợi ý cho bạn</h3>
-        
-        <div className="suggestions-carousel-container">
-          <button className="slider-arrow-btn left" onClick={() => handleScrollCategories("prev")}>
-            ⟨
-          </button>
-
-          <div className="suggestions-carousel-wrapper" ref={categoriesScrollRef}>
-            {suggestionCategories.map((cat, idx) => (
-              <a 
-                href={getCategoryLink(cat.name)} 
-                className="suggestion-item" 
-                key={idx}
-                onClick={(e) => {
-                  if (getCategoryLink(cat.name) === "#") {
-                    e.preventDefault();
-                    alert("Danh mục này đang được cập nhật sản phẩm, vui lòng quay lại sau!");
-                  }
-                }}
-              >
-                <div className="suggestion-icon-box">
-                  <img src={cat.img} alt={cat.name} />
+      {/* 8. PHÂN KHÚC ĐIỆN TỬ - ĐIỆN LẠNH NỔI BẬT */}
+      {appliances.length > 0 && (
+        <section className="product-section">
+          <h3 className="section-title">ĐIỆN TỬ - ĐIỆN LẠNH NỔI BẬT</h3>
+          <div className="shopee-product-grid">
+            {appliances.map(prod => {
+              const specs = getProductSpecs(prod.description);
+              const originalPrice = prod.originalPrice || Math.round(prod.price * 1.25);
+              const hasDiscount = originalPrice && Number(originalPrice) > Number(prod.price);
+              const discountPercent = hasDiscount ? Math.round(((originalPrice - prod.price) / originalPrice) * 100) : 0;
+              return (
+                <div className="shopee-product-card" key={prod.id}>
+                  {hasDiscount && (
+                    <div className="shopee-discount-badge">
+                      <span>GIẢM</span>
+                      <strong>{discountPercent}%</strong>
+                    </div>
+                  )}
+                  <a href={`/product/${prod.id}`} className="shopee-card-img-box">
+                    <img src={getProductImage(prod.imageUrl)} alt={prod.name} />
+                  </a>
+                  {specs && (
+                    <div className="shopee-card-specs">
+                      {specs.map(([key, value], idx) => (
+                        <div className="spec-row" key={idx}>
+                          <span className="spec-key">{key}:</span>
+                          <span className="spec-val">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <a href={`/product/${prod.id}`} style={{ textDecoration: "none" }}>
+                    <h4 className="shopee-card-title">{prod.name}</h4>
+                  </a>
+                  <div className="shopee-price-container">
+                    <span className="shopee-current-price">{prod.price?.toLocaleString()}đ</span>
+                    {hasDiscount && (
+                      <span className="shopee-original-price">{Number(originalPrice).toLocaleString()}đ</span>
+                    )}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                    <a href={`/product/${prod.id}`} className="shopee-card-btn" style={{ background: "#f1f5f9", color: "#334155", padding: "8px 4px", fontSize: "13px" }}>Xem chi tiết</a>
+                    <button 
+                      onClick={(e) => handleQuickAddToCart(prod, e)} 
+                      className="shopee-card-btn"
+                      style={{ padding: "8px 4px", fontSize: "13px" }}
+                    >
+                      🛒 Thêm giỏ
+                    </button>
+                  </div>
                 </div>
-                <span>{cat.name}</span>
-              </a>
-            ))}
+              );
+            })}
           </div>
+        </section>
+      )}
 
-          <button className="slider-arrow-btn right" onClick={() => handleScrollCategories("next")}>
-            ⟩
-          </button>
+      {/* TOAST POPUP KHI THÊM VÀO GIỎ HÀNG TỪ TRANG CHỦ */}
+      {toastMessage && (
+        <div style={{
+          position: "fixed",
+          top: "100px",
+          right: "24px",
+          backgroundColor: "#059669",
+          color: "white",
+          padding: "16px 24px",
+          borderRadius: "16px",
+          boxShadow: "0 12px 35px rgba(0,0,0,0.25)",
+          zIndex: 99999,
+          display: "flex",
+          alignItems: "center",
+          gap: "16px",
+          animation: "slideUp 0.25s ease-out"
+        }}>
+          <span style={{ fontSize: "28px" }}>🎉</span>
+          <div>
+            <strong style={{ display: "block", fontSize: "16px", fontWeight: "800" }}>Thêm vào giỏ hàng thành công!</strong>
+            <span style={{ fontSize: "14px", opacity: 0.9 }}>{toastMessage}</span>
+          </div>
+          <a 
+            href="/cart" 
+            style={{ 
+              backgroundColor: "white", 
+              color: "#059669", 
+              padding: "9px 18px", 
+              borderRadius: "10px", 
+              textDecoration: "none", 
+              fontWeight: "800",
+              fontSize: "14px",
+              marginLeft: "10px"
+            }}
+          >
+            Xem giỏ hàng →
+          </a>
         </div>
-      </section>
+      )}
+
+
 
       {/* 9. BANNER PHẢN HỒI Ý KIẾN KHÁCH HÀNG (BẠN CÓ HÀI LÒNG KHÔNG?) */}
       <section className="feedback-section-container">
         <div className="feedback-card">
           <div className="feedback-left">
-            <h3>Bạn có hài lòng với trải nghiệm trên trang chủ FPT Shop không?</h3>
+            <h3>Bạn có hài lòng với trải nghiệm trên trang chủ DungThamMobile không?</h3>
             {!feedbackSubmitted ? (
               <div className="feedback-buttons">
                 <button className="btn-satisfied" onClick={() => setFeedbackSubmitted(true)}>
@@ -530,7 +634,7 @@ export default function HomePage() {
         <div className="commitment-item">
           <div className="commitment-icon-box">🔄</div>
           <strong>Đổi trả dễ dàng</strong>
-          <span>Theo chính sách đổi trả tại FPT Shop</span>
+          <span>Theo chính sách đổi trả tại DungThamMobile</span>
         </div>
 
         <div className="commitment-item">

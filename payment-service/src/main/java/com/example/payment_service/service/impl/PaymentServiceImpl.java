@@ -20,10 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.payos.model.webhooks.Webhook;
+import vn.payos.model.webhooks.WebhookData;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -31,15 +31,14 @@ import java.util.Map;
 public class PaymentServiceImpl extends BaseService<PaymentRepository, PaymentResponse, Payment, PaymentMapper, String> implements PaymentService {
 
     private final PaymentEventPublisher paymentEventPublisher;
-    private final VNPAYService vnpayService;
+    private final PayOSService payOSService;
     private final OrderClient orderClient;
 
-    // PaymentRepository và PaymentMapper được tự động tiêm thông qua lớp cha BaseService.
     public PaymentServiceImpl(PaymentEventPublisher paymentEventPublisher,
-                              VNPAYService vnpayService,
+                              PayOSService payOSService,
                               OrderClient orderClient) {
         this.paymentEventPublisher = paymentEventPublisher;
-        this.vnpayService = vnpayService;
+        this.payOSService = payOSService;
         this.orderClient = orderClient;
     }
 
@@ -63,19 +62,25 @@ public class PaymentServiceImpl extends BaseService<PaymentRepository, PaymentRe
     }
 
     @Override
-    public String createVNPAYUrl(PaymentRequest request, String ipAddress , Long currentUserId) {
-        log.info("Yêu cầu tạo link VNPAY cho đơn hàng: [{}]. Phương thức: {}",
+    public String createPayOSUrl(PaymentRequest request, String ipAddress, Long currentUserId) {
+        log.info("Yêu cầu tạo link PayOS cho đơn hàng: [{}]. Phương thức: {}",
                 request.getOrderId(), request.getPaymentMethod());
 
         Payment payment = repository.findByOrderId(request.getOrderId())
-                .orElseThrow(() -> {
-                    log.error("Lỗi tạo URL: Không tìm thấy bản ghi Payment cho đơn hàng [{}]", request.getOrderId());
-                    return new PaymentNotFoundException("Không tìm thấy thanh toán cho đơn hàng: " + request.getOrderId());
+                .orElseGet(() -> {
+                    log.info("Chưa tìm thấy Payment từ RabbitMQ event, tự động khởi tạo Payment PENDING cho đơn hàng [{}]", request.getOrderId());
+                    Payment p = new Payment();
+                    p.setOrderId(request.getOrderId());
+                    p.setUserId(currentUserId);
+                    p.setAmount(BigDecimal.ZERO);
+                    p.setStatus(PaymentStatus.PENDING);
+                    return repository.save(p);
                 });
-        //Kiểm tra quyền sở hữu đơn hàng trước khi tạo link thanh toán
-        if(payment.getUserId() != null && !payment.getUserId().equals(currentUserId)){
-            log.error("Cảnh báo bảo mật : User ID [{}] không có quyền thanh toán cho đơn hàng [{}]",currentUserId,request.getOrderId());
-            throw new BusinessException(HttpStatus.FORBIDDEN,"Bạn không có quyền thanh toán cho đơn hàng này",null);
+
+        // Kiểm tra quyền sở hữu đơn hàng
+        if (payment.getUserId() != null && !payment.getUserId().equals(currentUserId)) {
+            log.error("Cảnh báo bảo mật: User ID [{}] không có quyền thanh toán cho đơn hàng [{}]", currentUserId, request.getOrderId());
+            throw new BusinessException(HttpStatus.FORBIDDEN, "Bạn không có quyền thanh toán cho đơn hàng này", null);
         }
 
         log.debug("Đang gọi Order-Service để lấy tổng tiền đơn hàng [{}]...", request.getOrderId());
@@ -91,74 +96,65 @@ public class PaymentServiceImpl extends BaseService<PaymentRepository, PaymentRe
         payment.setAmount(totalPrice);
         payment.setPaymentMethod(request.getPaymentMethod());
 
-        String vnpTxnRef = request.getOrderId().substring(0, Math.min(request.getOrderId().length(), 8))
-                + System.currentTimeMillis() % 1000;
-        payment.setVnpTxnRef(vnpTxnRef);
+        // Sinh orderCode dạng số nguyên dương duy nhất (Long)
+        long orderCode = System.currentTimeMillis() % 1_000_000_000L;
+        payment.setOrderCode(orderCode);
 
-        String paymentUrl = vnpayService.createPaymentUrl(
-                request.getOrderId(), vnpTxnRef, totalPrice.longValue(), "Thanh toan don hang " + request.getOrderId(), ipAddress);
+        String description = "DH" + orderCode;
+        String paymentUrl = payOSService.createPaymentLink(orderCode, totalPrice.longValue(), description);
 
         repository.save(payment);
-        log.info("Đã tạo và lưu URL thanh toán thành công cho đơn hàng [{}]. Tổng tiền: {} VND",
-                request.getOrderId(), totalPrice);
+        log.info("Đã tạo và lưu URL thanh toán PayOS thành công cho đơn hàng [{}]. Tổng tiền: {} VND, OrderCode: {}",
+                request.getOrderId(), totalPrice, orderCode);
 
         return paymentUrl;
     }
 
     @Override
-    public Map<String, String> processVNPAYResult(Map<String, String> params) {
-        String txnRef = params.get("vnp_TxnRef");
-        log.info("--- [IPN RECEIVE] Nhận kết quả từ VNPAY cho giao dịch: {} ---", txnRef);
+    public void processPayOSWebhook(Webhook webhookBody) {
+        // 1. Xác thực Webhook với PayOS
+        WebhookData webhookData = payOSService.verifyWebhook(webhookBody);
+        Long orderCode = webhookData.getOrderCode();
 
-        Map<String, String> result = new HashMap<>();
+        log.info("--- [PAYOS WEBHOOK] Nhận kết quả thanh toán cho OrderCode: {} ---", orderCode);
 
-        if (!vnpayService.verifySignature(params)) {
-            log.error("XÁC THỰC THẤT BẠI: Chữ ký VNPAY không khớp cho giao dịch [{}]", txnRef);
-            result.put("RspCode", "97");
-            result.put("Message", "Fail checksum");
-            return result;
-        }
-
-        Payment payment = repository.findByVnpTxnRef(txnRef).orElse(null);
+        // 2. Tìm payment theo orderCode (Nếu là request test webhook từ PayOS thì chỉ log và bỏ qua)
+        Payment payment = repository.findByOrderCode(orderCode).orElse(null);
         if (payment == null) {
-            log.error("LỖI ĐỐI SOÁT: Không tìm thấy bản ghi Payment cho mã VNPAY [{}]", txnRef);
-            result.put("RspCode", "01");
-            result.put("Message", "Order not found");
-            return result;
+            log.warn("Không tìm thấy đơn hàng trong DB cho OrderCode: {} (Có thể là request kiểm tra Webhook URL từ PayOS)", orderCode);
+            return;
         }
 
-        boolean isSuccess = vnpayService.isSuccess(params);
+        // 3. Kiểm tra trạng thái giao dịch
+        boolean isSuccess = "00".equals(webhookBody.getCode()) || "00".equals(webhookData.getCode());
         PaymentStatus newStatus = isSuccess ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
 
         payment.setStatus(newStatus);
-        payment.setTransactionId(params.get("vnp_TransactionNo"));
+        payment.setTransactionId(webhookData.getReference());
         repository.save(payment);
 
         log.info("Cập nhật DB thành công cho đơn hàng [{}]. Trạng thái mới: {}", payment.getOrderId(), newStatus);
 
+        // 4. Bắn RabbitMQ event cập nhật Order Service
         PaymentProcessedEvent event = new PaymentProcessedEvent(
                 payment.getOrderId(), newStatus.name(), payment.getTransactionId());
 
         log.info("Đang gửi thông báo kết quả thanh toán sang RabbitMQ cho Order [{}]...", payment.getOrderId());
         paymentEventPublisher.publishPaymentProcessed(event);
 
-        result.put("RspCode", "00");
-        result.put("Message", "Confirm Success");
-
-        log.info("--- [IPN PROCESSED] Hoàn tất xử lý IPN VNPAY cho đơn hàng [{}] ---", payment.getOrderId());
-        return result;
+        log.info("--- [PAYOS WEBHOOK PROCESSED] Hoàn tất xử lý webhook cho đơn hàng [{}] ---", payment.getOrderId());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PaymentResponse getPaymentByOrderId(String orderId , Long currentUserId, String role) {
+    public PaymentResponse getPaymentByOrderId(String orderId, Long currentUserId, String role) {
         log.debug("Truy vấn trạng thái thanh toán cho đơn hàng: {}", orderId);
         Payment payment = repository.findByOrderId(orderId)
                 .orElseThrow(() -> new PaymentNotFoundException("Không tìm thấy thanh toán cho đơn hàng: " + orderId));
-        //Kt quyền : Chỉ ADMIN hoặc chính chủ sở hữu đơn hàng mới được quyền truy cập thông tin
-        if(!"ADMIN".equals(role) && payment.getUserId() != null && !payment.getUserId().equals(currentUserId)) {
+
+        if (!"ADMIN".equals(role) && payment.getUserId() != null && !payment.getUserId().equals(currentUserId)) {
             log.error("Cảnh báo bảo mật: User ID [{}] không có quyền xem thông tin thanh toán cho đơn hàng [{}]", currentUserId, orderId);
-            throw new BusinessException(HttpStatus.FORBIDDEN,"Bạn không có quyền xem thông tin thanh toán này",null);
+            throw new BusinessException(HttpStatus.FORBIDDEN, "Bạn không có quyền xem thông tin thanh toán này", null);
         }
         return mapper.toDto(payment);
     }

@@ -4,6 +4,7 @@ import com.example.lib.model.exception.BusinessException;
 import com.example.lib.model.response.BaseResponse;
 import com.example.order_service.dto.request.OrderRequest;
 import com.example.order_service.dto.response.OrderResponse;
+import com.example.order_service.entity.Order;
 import com.example.order_service.service.OrderService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -52,17 +53,11 @@ public class OrderController  {
             @Parameter(description = "Nhập ID User cần xem: ") @RequestParam(value = "userId", required = false) Long queryUserId,
             Authentication authentication) {
 
-        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (isAdmin) {
-            log.info("ADMIN đang truy vấn danh sách đơn hàng. Filter queryUserId: {}", queryUserId != null ? queryUserId : "ALL");
-        } else {
-            log.info("USER [{}] đang truy vấn danh sách đơn hàng của chính mình", headerUserId);
-        }
-
+        // 🟢 ĐOẠN CODE GỢI Ý MỚI:
+        boolean isStaffOrAdmin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_STAFF"));
         List<OrderResponse> data;
-        if (isAdmin) {
+        if (isStaffOrAdmin) {
             if (queryUserId != null) {
                 data = orderService.getOrdersByUserId(queryUserId);
             } else {
@@ -119,5 +114,12 @@ public class OrderController  {
         log.info("[Nội bộ] Product Service kiểm tra lịch sử mua hàng của user [{}] cho sản phẩm [{}]", userId, productId);
         boolean hasPurchased = orderService.hasPurchasedProduct(userId, productId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, hasPurchased));
+    }
+    @PutMapping("/{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN') or @ss.hasPermission('ORDER_UPDATE')")
+    public ResponseEntity<BaseResponse<OrderResponse>> updateOrderStatus(@PathVariable String orderId,@RequestParam String status){
+        log.info("Yêu cầu cập nhật trạng thái đơn hàng ID [{}] sang [{}]",orderId,status);
+        OrderResponse data = orderService.updateOrderStatus(orderId,status);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK,data));
     }
 }

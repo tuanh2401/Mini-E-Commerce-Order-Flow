@@ -94,3 +94,9 @@ data:
 
 order:
   payment-timeout-minutes: 10
+
+  # ========== KAFKA ==========
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-payment-group

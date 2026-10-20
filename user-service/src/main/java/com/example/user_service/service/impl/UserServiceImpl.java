@@ -1,5 +1,6 @@
 package com.example.user_service.service.impl;
 
+import com.example.lib.model.dto.EmailVerificationEvent;
 import com.example.lib.model.exception.BusinessException;
 import com.example.lib.model.response.BaseResponse;
 import com.example.lib.service.BaseService;
@@ -12,18 +13,30 @@ import com.example.user_service.mapper.UserMapper;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Random;
 
 @Slf4j
 @Service
 public class UserServiceImpl extends BaseService<UserRepository, UserResponse, User, UserMapper, Long> implements UserService {
 
     private final MinioService minioService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+    @Autowired
+    private com.example.user_service.client.AuthClient authClient;
 
     // constructor chỉ cần tiêm MinioService.
     // UserRepository và UserMapper đã được Spring tự động tiêm thông qua @Autowired ở BaseService cha.
@@ -100,5 +113,59 @@ public class UserServiceImpl extends BaseService<UserRepository, UserResponse, U
         } catch (Exception ex) {
             throw new RuntimeException("Cập nhật thông tin cá nhân thất bại", ex);
         }
+    }
+    @Override
+    public void requestChangeEmailOtp(Long userId, String newEmail) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng", null));
+        // Sinh mã ngẫu nhiên 6 số có đệm 0 nếu cần (ví dụ: 042918)
+        String otpCode = String.format("%06d", new Random().nextInt(1000000));
+        // Lưu vào Redis với thời gian hết hạn (TTL) là 60 giây
+        String redisKey = "otp:email-change:" + userId;
+        stringRedisTemplate.opsForValue().set(redisKey, newEmail + ":" + otpCode, Duration.ofSeconds(60));
+        log.info("⭐ Đã lưu mã OTP [{}] cho UserID [{}] vào Redis, hết hạn sau 60s", otpCode, userId);
+        // Bắn sự kiện lên Kafka để Noti gửi gmail
+        EmailVerificationEvent event = EmailVerificationEvent.builder()
+                .email(newEmail)
+                .username(user.getFullname())
+                .verificationToken(otpCode)
+                .expiryTime(LocalDateTime.now().plusSeconds(60))
+                .build();
+        kafkaTemplate.send("send-otp-email-topic", String.valueOf(userId), event);
+        log.info("🚀 [Kafka Producer] Đã bắn sự kiện gửi OTP tới Email [{}] lên topic [send-otp-email-topic]!", newEmail);
+    }
+
+    // Ktra mã OTP từ Redis và Cập nhật Email mới
+    @Override
+    public UserResponse verifyChangeEmailOtp(Long userId, String otpCode) {
+        String redisKey = "otp:email-change:" + userId;
+        String cachedData = stringRedisTemplate.opsForValue().get(redisKey);
+        if(cachedData == null){
+            throw new BusinessException(HttpStatus.BAD_REQUEST,"Mã xác thực OTP đã hết hạn hoặc không tồn tại. Vui lòng lấy mã mới",null);
+        }
+        String[] parts = cachedData.split(":");
+        String newEmail = parts[0];
+        String savedOtp = parts[1];
+        if(!savedOtp.equals(otpCode.trim())){
+            throw new BusinessException(HttpStatus.BAD_REQUEST,"Mã xác thực OTP không chính xác!",null);
+        }
+        //Nếu mã đúng -> Cập nhật Email vào DB
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND,"Không tìm thấy người dùng",null));
+        user.setEmail(newEmail);
+        User updatedUser = repository.save(user);
+
+        // Đồng bộ sang Auth-Service để cập nhật trong auth_db
+        try {
+            authClient.updateEmailInternal(userId, newEmail);
+            log.info("⭐ Đã đồng bộ Email mới [{}] sang Auth-Service thành công!", newEmail);
+        } catch (Exception ex) {
+            log.error("💥 Lỗi khi đồng bộ Email sang Auth-Service: {}", ex.getMessage());
+        }
+
+        //Xóa mã OTP trong Redis sau khi đã dùng xong
+        stringRedisTemplate.delete(redisKey);
+        log.info("Xác thực thành công ! Đã đổi email của user [{}] thành [{}]",userId,newEmail);
+        return mapper.toDto(updatedUser);
     }
 }

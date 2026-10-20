@@ -95,7 +95,6 @@ function CategoryProductsContent({ id, category }) {
       <h3 className="section-title">
         {category ? `${category.name.toUpperCase()} NỔI BẬT` : "DANH SÁCH SẢN PHẨM"}
         {brand && <span style={{ color: "var(--fpt-red)", textTransform: "uppercase" }}> - HÃNG {brand}</span>}
-        {series && <span style={{ color: "#2563eb", textTransform: "uppercase" }}> ({series.toUpperCase()})</span>}
       </h3>
       
       {category?.description && (

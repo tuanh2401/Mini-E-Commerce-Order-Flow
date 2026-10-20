@@ -27,6 +27,9 @@ public interface OrderService extends IBaseService<OrderRepository, OrderRespons
     // 4. Lấy tất cả đơn hàng (dành cho Admin)
     List<OrderResponse> getAllOrders();
 
+    //Cập nhật trạng thái đơn hàng
+    OrderResponse updateOrderStatus(String orderId, String newStatus);
+
     // 5. Kiểm tra khách hàng đã từng mua và thanh toán sản phẩm này chưa (gọi nội bộ từ Product Service)
     boolean hasPurchasedProduct(Long userId, Long productId);
 }

@@ -11,4 +11,11 @@ public interface AuthClient {
     // Gọi đến API xóa mềm/vô hiệu hóa tài khoản ở auth-service
     @DeleteMapping("/api/auth/internal/users/{id}")
     BaseResponse<Void> disableUser(@PathVariable("id") Long id);
+
+    // Gọi sang auth-service để cập nhật đồng bộ email mới vào auth_db
+    @org.springframework.web.bind.annotation.PutMapping("/api/auth/internal/users/{id}/email")
+    BaseResponse<Void> updateEmailInternal(
+            @PathVariable("id") Long id,
+            @org.springframework.web.bind.annotation.RequestParam("email") String email
+    );
 }

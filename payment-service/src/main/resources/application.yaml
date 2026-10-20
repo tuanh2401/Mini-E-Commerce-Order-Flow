@@ -67,12 +67,13 @@ springdoc:
   api-docs:
     path: /api/payments/v3/api-docs
 
-# ========== VNPAY ==========
-vnpay:
-  tmn-code: R311D0G4
-  hash-secret: XAMS1JKXO10FOW7Y8DYBRPJ022WHCF29
-  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://tuananhcommerce.com:8085/api/payments/vnpay-callback
+# ========== PAYOS CONFIGURATION ==========
+payos:
+  client-id: "9d250745-d0cc-407b-8128-d223f4e452b0"
+  api-key: "959a6d85-6c8d-4302-8e0b-66fc7947bb0d"
+  checksum-key: "e7f406a4e54d2f7af3234d843dccc6a7bbcb721f1416348fdc8f9cd085b7f9b5"
+  return-url: http://localhost:3000/checkout?status=PAID
+  cancel-url: http://localhost:3000/checkout?status=CANCELLED
 
 # ========== OPENAPI & SECURITY ==========
 openapi:
@@ -81,7 +82,7 @@ openapi:
   local-server-url: http://localhost:8085
 
 security:
-  public-endpoints: /api/payments/vnpay-ipn,/api/payments/vnpay-callback,/api/payments/v3/api-docs/**,/api/payments/analytics/internal/**
+  public-endpoints: /api/payments/test-kafka,/api/payments/payos-webhook,/api/payments/payos-callback,/api/payments/payos-cancel,/api/payments/v3/api-docs/**
 
 # ========== CALL ORDER SERVICE ==========
 config:
@@ -104,3 +105,7 @@ data:
   redis:
     host: localhost
     port: 6379
+
+# ========== KAFKA ==========
+kafka:
+  bootstrap-servers: localhost:9092

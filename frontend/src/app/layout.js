@@ -2,8 +2,8 @@ import './globals.css';
 import LayoutWrapper from './components/LayoutWrapper';
 
 export const metadata = {
-  title: 'FPT Shop Clone - Mini E-Commerce',
-  description: 'Hệ thống cửa hàng điện máy cao cấp',
+  title: 'DungThamMobile - Hệ thống bán lẻ Điện thoại, Laptop, Phụ kiện chính hãng',
+  description: 'DungThamMobile - Cửa hàng bán lẻ điện thoại, laptop, phụ kiện uy tín hàng đầu',
 };
 
 export default function RootLayout({ children }) {

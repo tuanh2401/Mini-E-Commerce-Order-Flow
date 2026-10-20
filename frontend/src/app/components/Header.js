@@ -1,34 +1,213 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import api from "@/app/lib/api";
 
 export default function Header() {
   const [megamenuOpen, setMegamenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("PHONE"); // PHONE | LAPTOP | APPLIANCE | ACCESSORY
 
-  // Lấy trạng thái đăng nhập từ localStorage sau khi mounted
   const [username, setUsername] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const userMenuRef = useRef(null);
+  const megamenuRef = useRef(null);
+  const menuBtnRef = useRef(null);
+  const megamenuTimeoutRef = useRef(null);
+
+  // Trạng thái tìm kiếm sản phẩm & Live Search
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchWrapperRef = useRef(null);
+
+  const handleMouseEnterMenu = () => {
+    if (megamenuTimeoutRef.current) {
+      clearTimeout(megamenuTimeoutRef.current);
+      megamenuTimeoutRef.current = null;
+    }
+    setMegamenuOpen(true);
+  };
+
+  const handleMouseLeaveMenu = () => {
+    if (megamenuTimeoutRef.current) {
+      clearTimeout(megamenuTimeoutRef.current);
+    }
+    megamenuTimeoutRef.current = setTimeout(() => {
+      setMegamenuOpen(false);
+    }, 280);
+  };
+
+  const toggleMegamenu = (e) => {
+    if (e) e.stopPropagation();
+    if (megamenuTimeoutRef.current) {
+      clearTimeout(megamenuTimeoutRef.current);
+      megamenuTimeoutRef.current = null;
+    }
+    setMegamenuOpen(prev => !prev);
+  };
+
+  const updateCartCount = () => {
+    try {
+      const local = JSON.parse(localStorage.getItem("dtm_cart_items") || "[]");
+      const count = local.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      setCartCount(count);
+    } catch (e) {}
+  };
+
+  const syncUserAvatar = () => {
+    try {
+      const savedAvatar = localStorage.getItem("userAvatar") || "";
+      setUserAvatar(savedAvatar);
+    } catch (e) {}
+  };
+
+  const resetUser = () => {
+    setUsername("");
+    setUserRole("");
+    setUserAvatar("");
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setUsername(localStorage.getItem("username") || "");
-      // Đọc role từ JWT token
       const token = localStorage.getItem("accessToken");
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          setUserRole(payload.role || payload.roles || "");
-        } catch (e) {}
+      const refreshToken = localStorage.getItem("refreshToken");
+      const validToken = token && token !== "null" && token !== "undefined" ? token : null;
+      const validRefresh = refreshToken && refreshToken !== "null" && refreshToken !== "undefined" ? refreshToken : null;
+
+      // 1. Nếu không có token nào trong storage -> Xóa toàn bộ dữ liệu người dùng cũ
+      if (!validToken && !validRefresh) {
+        localStorage.removeItem("username");
+        localStorage.removeItem("userAvatar");
+        localStorage.removeItem("userId");
+        resetUser();
+      } else {
+        // 2. Nếu có token, đọc tạm role
+        if (validToken) {
+          try {
+            const payload = JSON.parse(atob(validToken.split(".")[1]));
+            setUserRole(payload.role || payload.roles || "");
+          } catch (e) {}
+        }
+
+        // Tự động kiểm tra tính hợp lệ của phiên đăng nhập từ backend
+        api.get("/users/me").then(res => {
+          const d = res.data?.data;
+          if (d) {
+            const name = d.fullName || d.username || "";
+            if (name) {
+              setUsername(name);
+              localStorage.setItem("username", name);
+            }
+            if (d.avatarUrl) {
+              setUserAvatar(d.avatarUrl);
+              localStorage.setItem("userAvatar", d.avatarUrl);
+            }
+          }
+        }).catch((err) => {
+          console.warn("Phiên đăng nhập không còn hiệu lực trên backend:", err.message);
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("username");
+          localStorage.removeItem("userAvatar");
+          localStorage.removeItem("userId");
+          resetUser();
+        });
       }
+      updateCartCount();
     }
+
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+      if (
+        megamenuRef.current &&
+        !megamenuRef.current.contains(event.target) &&
+        menuBtnRef.current &&
+        !menuBtnRef.current.contains(event.target)
+      ) {
+        setMegamenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("cart_updated", updateCartCount);
+    window.addEventListener("avatar_updated", syncUserAvatar);
+    window.addEventListener("session_expired", resetUser);
+
+    return () => {
+      if (megamenuTimeoutRef.current) {
+        clearTimeout(megamenuTimeoutRef.current);
+      }
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("cart_updated", updateCartCount);
+      window.removeEventListener("avatar_updated", syncUserAvatar);
+      window.removeEventListener("session_expired", resetUser);
+    };
   }, []);
+
+  // Lắng nghe và gợi ý sản phẩm tức thì (Debounced Live Search)
+  useEffect(() => {
+    if (!searchTerm.trim() || searchTerm.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await axios.get(`http://localhost:8082/api/products?name=${encodeURIComponent(searchTerm.trim())}&size=5`);
+        const list = res.data?.data?.content || res.data?.data || [];
+        setSuggestions(list);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.warn("Lỗi tìm kiếm gợi ý:", err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!searchTerm.trim()) return;
+    setShowSuggestions(false);
+    router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+  };
+
+  const handleSelectQuickTag = (tag) => {
+    setSearchTerm(tag);
+    setShowSuggestions(false);
+    router.push(`/search?q=${encodeURIComponent(tag)}`);
+  };
+
+  const getSuggestionImage = (imageUrl) => {
+    if (!imageUrl) return "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80";
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) return imageUrl;
+    return `http://localhost:9000/products/${imageUrl.replace(/^\/+/, "")}`;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("username");
+    localStorage.removeItem("userAvatar");
     setUsername("");
     setUserRole("");
+    setUserAvatar("");
     window.location.href = "/";
   };
 
@@ -179,50 +358,46 @@ export default function Header() {
 
       {/* Sub-types filters */}
       <div className="megamenu-subtypes-row">
-        <span>❄️ Máy lạnh 1 chiều</span>
-        <span>📺 Tivi 4K</span>
-        <span>📺 Tivi QLED</span>
-        <span>🧼 Máy giặt cửa trước</span>
-        <span>🧊 Tủ lạnh Inverter</span>
+        <a href="/category/4?search=máy%20lạnh" style={{ textDecoration: "none", color: "inherit" }}><span>❄️ Máy lạnh 1 chiều</span></a>
+        <a href="/category/4?search=tivi" style={{ textDecoration: "none", color: "inherit" }}><span>📺 Tivi 4K</span></a>
+        <a href="/category/4?search=oled" style={{ textDecoration: "none", color: "inherit" }}><span>📺 Tivi QLED</span></a>
+        <a href="/category/4?search=máy%20giặt" style={{ textDecoration: "none", color: "inherit" }}><span>🧼 Máy giặt cửa trước</span></a>
+        <a href="/category/4?search=tủ%20lạnh" style={{ textDecoration: "none", color: "inherit" }}><span>🧊 Tủ lạnh Inverter</span></a>
       </div>
 
       <div className="megamenu-grid-cols">
         <div className="megamenu-col">
-          <a href="#" className="megamenu-group-title" onClick={(e) => { e.preventDefault(); alert("Danh mục Điện máy sẽ được mở rộng sớm!"); }}>Tivi ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Tivi QLED</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Tivi 4K</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Google TV</a>
+          <a href="/category/4?search=tivi" className="megamenu-group-title">Tivi ⟩</a>
+          <a href="/category/4?search=qled">Tivi QLED</a>
+          <a href="/category/4?search=4k">Tivi 4K</a>
+          <a href="/category/4?search=samsung">Smart TV Samsung</a>
           
-          <a href="#" className="megamenu-group-title" style={{ marginTop: "12px" }} onClick={(e) => { e.preventDefault(); alert("Danh mục Điện máy sẽ được mở rộng sớm!"); }}>Máy giặt ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy giặt cửa trước</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy giặt cửa trên</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy giặt sấy</a>
+          <a href="/category/4?search=máy%20giặt" className="megamenu-group-title" style={{ marginTop: "12px" }}>Máy giặt ⟩</a>
+          <a href="/category/4?search=cửa%20trước">Máy giặt cửa trước</a>
+          <a href="/category/4?search=lg">Máy giặt LG</a>
+          <a href="/category/4?search=sấy">Máy giặt sấy</a>
         </div>
 
         <div className="megamenu-col">
-          <a href="#" className="megamenu-group-title" onClick={(e) => { e.preventDefault(); alert("Danh mục Điện máy sẽ được mở rộng sớm!"); }}>Máy lạnh - Điều hòa ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy lạnh - Điều hòa 1 chiều</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy lạnh - Điều hòa 2 chiều</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Máy lạnh - Điều hòa Inverter</a>
+          <a href="/category/4?search=máy%20lạnh" className="megamenu-group-title">Máy lạnh - Điều hòa ⟩</a>
+          <a href="/category/4?search=inverter">Máy lạnh Inverter</a>
+          <a href="/category/4?search=daikin">Điều hòa Daikin</a>
+          <a href="/category/4?search=panasonic">Điều hòa Panasonic</a>
           
-          <a href="#" className="megamenu-group-title" style={{ marginTop: "12px" }} onClick={(e) => { e.preventDefault(); alert("Danh mục Điện máy sẽ được mở rộng sớm!"); }}>Máy sấy ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Sấy thông hơi</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Sấy ngưng tụ</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Sấy bơm nhiệt</a>
+          <a href="/category/4?search=sấy" className="megamenu-group-title" style={{ marginTop: "12px" }}>Máy sấy ⟩</a>
+          <a href="/category/4?search=sấy%20thông%20hơi">Sấy thông hơi</a>
+          <a href="/category/4?search=sấy%20bơm%20nhiệt">Sấy bơm nhiệt</a>
         </div>
 
         <div className="megamenu-col">
-          <a href="#" className="megamenu-group-title" onClick={(e) => { e.preventDefault(); alert("Danh mục Điện máy sẽ được mở rộng sớm!"); }}>Tủ lạnh ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Tủ lạnh Inverter</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Tủ lạnh nhiều cửa</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Side by side</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Mini</a>
+          <a href="/category/4?search=tủ%20lạnh" className="megamenu-group-title">Tủ lạnh ⟩</a>
+          <a href="/category/4?search=inverter">Tủ lạnh Inverter</a>
+          <a href="/category/4?search=samsung">Tủ lạnh Samsung</a>
+          <a href="/category/4?search=panasonic">Tủ lạnh Panasonic</a>
+          <a href="/category/4?search=2%20cửa">Tủ lạnh 2 cửa</a>
 
-          <a href="#" className="megamenu-group-title" style={{ marginTop: "12px" }} onClick={(e) => e.preventDefault()}>Tủ đông ⟩</a>
-          <a href="#" className="megamenu-group-title" style={{ marginTop: "12px" }} onClick={(e) => e.preventDefault()}>Phụ kiện điện máy ⟩</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Vật tư máy lạnh</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Phụ kiện máy giặt</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Phụ kiện Tivi</a>
+          <a href="/category/4?search=tủ%20đông" className="megamenu-group-title" style={{ marginTop: "12px" }}>Tủ đông &amp; Khác ⟩</a>
+          <a href="/category/4?search=phụ%20kiện">Phụ kiện điện máy</a>
         </div>
       </div>
     </div>
@@ -277,19 +452,24 @@ export default function Header() {
     <header className="fpt-header">
       <div className="header-container">
         
-        {/* 1. Logo FPT Shop */}
+        {/* 1. Logo DungThamMobile */}
         <a href="/" className="fpt-logo">
-          <span className="logo-fpt">fpt</span>
-          <span className="logo-shop">Shop</span>
+          <span className="logo-fpt">DungTham</span>
+          <span className="logo-shop">Mobile</span>
         </a>
 
-        {/* 2. Nút Danh mục (Megamenu kích hoạt khi Hover) */}
+        {/* 2. Nút Danh mục (Hỗ trợ cả Click ghim menu và Hover mượt mà) */}
         <div 
           className="menu-btn-wrapper"
-          onMouseEnter={() => setMegamenuOpen(true)}
-          onMouseLeave={() => setMegamenuOpen(false)}
+          onMouseEnter={handleMouseEnterMenu}
+          onMouseLeave={handleMouseLeaveMenu}
         >
-          <button className="menu-btn">
+          <button 
+            ref={menuBtnRef}
+            className={`menu-btn ${megamenuOpen ? "active" : ""}`}
+            onClick={toggleMegamenu}
+            type="button"
+          >
             <svg className="menu-icon" fill="currentColor" viewBox="0 0 24 24" width="18" height="18">
               <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
             </svg>
@@ -298,7 +478,12 @@ export default function Header() {
 
           {/* Hộp Megamenu lớn */}
           {megamenuOpen && (
-            <div className="fpt-megamenu-panel">
+            <div 
+              ref={megamenuRef}
+              className="fpt-megamenu-panel"
+              onMouseEnter={handleMouseEnterMenu}
+              onMouseLeave={handleMouseLeaveMenu}
+            >
               <div className="megamenu-container">
                 
                 {/* CỘT 1: Sidebar các danh mục chính */}
@@ -415,57 +600,326 @@ export default function Header() {
         </div>
 
         {/* 3. Thanh tìm kiếm & Gợi ý từ khóa nhanh ở dưới */}
-        <div className="search-section">
-          <div className="search-bar-wrapper">
+        <div className="search-section" ref={searchWrapperRef} style={{ position: "relative" }}>
+          <form onSubmit={handleSearchSubmit} className="search-bar-wrapper">
             <input 
               type="text" 
               placeholder="Nhập tên điện thoại, laptop, phụ kiện... cần tìm" 
               className="search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => {
+                if (searchTerm.trim().length >= 2 && suggestions.length > 0) {
+                  setShowSuggestions(true);
+                }
+              }}
             />
-            <button className="search-btn">
+            {searchTerm && (
+              <button 
+                type="button" 
+                onClick={() => { setSearchTerm(""); setSuggestions([]); setShowSuggestions(false); }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#94a3b8",
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  fontSize: "14px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+                title="Xóa từ khóa"
+              >
+                ✕
+              </button>
+            )}
+            <button type="submit" className="search-btn" title="Tìm kiếm">
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
             </button>
-          </div>
+          </form>
+
+          {/* Live Search Popup Dropdown */}
+          {showSuggestions && (
+            <div style={{
+              position: "absolute",
+              top: "54px",
+              left: 0,
+              right: 0,
+              background: "#ffffff",
+              borderRadius: "16px",
+              boxShadow: "0 14px 35px rgba(0,0,0,0.18)",
+              border: "1px solid #e2e8f0",
+              zIndex: 9999,
+              overflow: "hidden"
+            }}>
+              <div style={{
+                padding: "10px 16px",
+                background: "#f8fafc",
+                borderBottom: "1px solid #f1f5f9",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontSize: "12px",
+                fontWeight: "700",
+                color: "#64748b"
+              }}>
+                <span>GỢI Ý SẢN PHẨM PHÙ HỢP</span>
+                {isSearching && <span style={{ color: "#cd1c22" }}>⏳ Đang tìm...</span>}
+              </div>
+
+              {suggestions.length === 0 ? (
+                <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: "14px" }}>
+                  {isSearching ? "Đang tra cứu sản phẩm..." : `Không tìm thấy sản phẩm nào khớp với "${searchTerm}".`}
+                </div>
+              ) : (
+                <div style={{ maxHeight: "340px", overflowY: "auto" }}>
+                  {suggestions.map(item => (
+                    <a
+                      key={item.id}
+                      href={`/product/${item.id}`}
+                      onClick={() => setShowSuggestions(false)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "10px 16px",
+                        textDecoration: "none",
+                        borderBottom: "1px solid #f8fafc",
+                        transition: "background 0.15s",
+                        cursor: "pointer"
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                    >
+                      <img 
+                        src={getSuggestionImage(item.imageUrl)} 
+                        alt={item.name}
+                        style={{ width: "42px", height: "42px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e2e8f0", background: "#f8fafc" }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          color: "#0f172a",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis"
+                        }}>
+                          {item.name}
+                        </div>
+                        {item.categoryName && (
+                          <span style={{ fontSize: "11px", color: "#64748b" }}>
+                            {item.categoryName}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: "14px", fontWeight: "800", color: "#cd1c22" }}>
+                          {item.price != null ? Number(item.price).toLocaleString("vi-VN") + "đ" : "Liên hệ"}
+                        </div>
+                        {item.stock != null && item.stock <= 5 && (
+                          <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: "600" }}>
+                            Còn {item.stock} máy
+                          </span>
+                        )}
+                      </div>
+                    </a>
+                  ))}
+                  
+                  <div 
+                    onClick={handleSearchSubmit}
+                    style={{
+                      padding: "12px 16px",
+                      textAlign: "center",
+                      background: "#fff1f2",
+                      color: "#cd1c22",
+                      fontWeight: "700",
+                      fontSize: "13px",
+                      cursor: "pointer",
+                      borderTop: "1px solid #fecdd3"
+                    }}
+                  >
+                    🔍 Xem tất cả kết quả cho "{searchTerm}" →
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           
           <div className="quick-tags">
-            <span>iphone 17</span>
-            <span>laptop</span>
-            <span>samsung</span>
-            <span>iphone 16</span>
-            <span>macbook</span>
-            <span>máy lạnh</span>
-            <span>phần mềm</span>
-            <span>tivi</span>
+            {["iPhone 16", "Laptop", "Samsung", "MacBook", "Tai nghe", "iPad"].map(tag => (
+              <span key={tag} onClick={() => handleSelectQuickTag(tag)}>
+                {tag}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* 4. Nhóm tiện ích (User & Giỏ hàng) */}
+        {/* 4. Nhóm tiện ích (Thông báo, User & Giỏ hàng) */}
         <div className="utility-group">
-          {/* Nút tài khoản hình tròn hoặc tên người dùng đăng nhập */}
-          {username ? (
-            <div className="user-logged-in-box">
-              <span className="user-greeting">Chào, {username}</span>
-              {userRole === "ADMIN" && (
-                <a href="/admin" className="btn-admin-link" target="_blank" rel="noopener noreferrer">⚙️ Quản trị</a>
-              )}
-              <button onClick={handleLogout} className="btn-logout-small">Đăng xuất</button>
-            </div>
-          ) : (
-            <a href="/auth" className="user-icon-btn">
-              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-              </svg>
-            </a>
-          )}
+          
+          {/* Icon Chuông thông báo */}
+          <button 
+            className="bell-icon-btn" 
+            title="Thông báo của tôi"
+            onClick={() => alert("Bạn không có thông báo mới nào!")}
+          >
+            <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+          </button>
+
+          {/* Nút Avatar User & Dropdown Menu */}
+          <div className="user-menu-wrapper" ref={userMenuRef}>
+            {username ? (
+              <>
+                <button 
+                  className="user-avatar-btn" 
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  title={`Tài khoản: ${username}`}
+                >
+                  <div className="avatar-circle" style={{ overflow: "hidden", padding: 0 }}>
+                    {userAvatar ? (
+                      <img 
+                        src={userAvatar} 
+                        alt={username} 
+                        onError={() => {
+                          setUserAvatar("");
+                          localStorage.removeItem("userAvatar");
+                        }}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                        color: "white",
+                        fontWeight: "800",
+                        fontSize: "18px",
+                        textTransform: "uppercase"
+                      }}>
+                        {username ? username.charAt(0) : "👤"}
+                      </div>
+                    )}
+                  </div>
+                </button>
+
+                {/* Dropdown Menu xổ xuống chuẩn FPT Shop khi nhấp vào icon User */}
+                {userDropdownOpen && (
+                  <div className="user-dropdown-menu">
+                    <div className="dropdown-user-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      {userAvatar ? (
+                        <img 
+                          src={userAvatar} 
+                          alt={username} 
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                          style={{ width: "42px", height: "42px", borderRadius: "50%", objectFit: "cover", border: "2px solid #f59e0b" }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: "42px",
+                          height: "42px",
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "18px",
+                          color: "white",
+                          fontWeight: "800",
+                          textTransform: "uppercase"
+                        }}>
+                          {username ? username.charAt(0) : "👤"}
+                        </div>
+                      )}
+                      <div>
+                        <div className="user-name-title" style={{ fontSize: "15px", fontWeight: "700" }}>{username}</div>
+                        <span className="user-role-badge">
+                          {userRole === "ADMIN" ? "👑 Quản trị viên" : (userRole === "STAFF" ? "🛵 Nhân viên" : "✨ Thành viên")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="dropdown-menu-list">
+                      <a href="/profile" className="user-dropdown-item" onClick={() => setUserDropdownOpen(false)}>
+                        <span className="item-icon">👤</span>
+                        <span>Hồ sơ & Hạng thành viên</span>
+                      </a>
+
+                      <a href="/orders" className="user-dropdown-item" onClick={() => setUserDropdownOpen(false)}>
+                        <span className="item-icon">📦</span>
+                        <span>Đơn hàng của tôi</span>
+                      </a>
+
+                      <div className="user-dropdown-item" onClick={() => { alert("Bạn không có thông báo mới nào!"); setUserDropdownOpen(false); }}>
+                        <span className="item-icon">🔔</span>
+                        <span>Thông báo của tôi</span>
+                      </div>
+
+                      <div className="user-dropdown-item" onClick={() => { alert("Kho ưu đãi đang được cập nhật!"); setUserDropdownOpen(false); }}>
+                        <span className="item-icon">🎁</span>
+                        <span>Ưu đãi của tôi</span>
+                      </div>
+
+                      <div className="user-dropdown-item" onClick={() => { alert("Lịch sử điểm thưởng: 150 điểm"); setUserDropdownOpen(false); }}>
+                        <span className="item-icon">🕒</span>
+                        <span>Lịch sử điểm thưởng</span>
+                      </div>
+
+                      {/* ĐÃ BỎ "DỊCH VỤ THU HỘ" THEO YÊU CẦU CỦA KHÁCH HÀNG */}
+
+                      <div className="user-dropdown-item" onClick={() => { alert("Tra cứu bảo hành tại DungThamMobile"); setUserDropdownOpen(false); }}>
+                        <span className="item-icon">🛡️</span>
+                        <span>Thông tin bảo hành</span>
+                      </div>
+
+                      <div className="user-dropdown-item" onClick={() => { alert("Sổ địa chỉ: Cửa hàng Dũng Thẩm Mobile - Hà Nam"); setUserDropdownOpen(false); }}>
+                        <span className="item-icon">📍</span>
+                        <span>Sổ địa chỉ nhận hàng</span>
+                      </div>
+
+                      {userRole === "ADMIN" && (
+                        <a href="/admin" className="user-dropdown-item admin-item" target="_blank" rel="noopener noreferrer">
+                          <span className="item-icon">⚙️</span>
+                          <span>Trang Quản trị Admin</span>
+                        </a>
+                      )}
+
+                      <div className="dropdown-divider"></div>
+
+                      <button className="user-dropdown-item logout-item" onClick={handleLogout}>
+                        <span className="item-icon">🚪</span>
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <a href="/auth" className="user-avatar-btn link-btn" title="Đăng nhập / Đăng ký">
+                <div className="avatar-circle">
+                  <svg width="24" height="24" fill="#d97706" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              </a>
+            )}
+          </div>
 
           {/* Nút Giỏ hàng hình con nhộng màu đen */}
           <a href="/cart" className="cart-pill-btn">
-            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
-            <span>Giỏ hàng</span>
+            <span>Giỏ hàng {cartCount > 0 && <strong style={{ color: "#facc15", marginLeft: "4px" }}>({cartCount})</strong>}</span>
           </a>
         </div>
 

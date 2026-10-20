@@ -35,6 +35,9 @@ public class ProductReview extends BaseEntity<Long> {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String images;
+
     /**
      * Ghi đè hàm getId() từ lớp cha BaseEntity để lấy khóa chính ProductReview.
      */

@@ -94,6 +94,76 @@ public class MinioService {
             throw new RuntimeException("Upload file thất bại: " + e.getMessage());
         }
     }
+
+    /**
+     * Upload file thẳng vào một Bucket chỉ định (ví dụ: "reviews" hoặc "review")
+     */
+    public String uploadFileToBucket(MultipartFile file, String targetBucket) {
+        try {
+            String actualBucket = targetBucket;
+            // Kiểm tra bucket tồn tại (hỗ trợ cả trường hợp bucket tên "review" hoặc "reviews")
+            boolean exist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(actualBucket).build());
+            if (!exist) {
+                String alternative = actualBucket.endsWith("s") ? actualBucket.substring(0, actualBucket.length() - 1) : actualBucket + "s";
+                if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(alternative).build())) {
+                    actualBucket = alternative;
+                    exist = true;
+                }
+            }
+
+            if (!exist) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(actualBucket).build());
+                log.info("Đã tạo tự động bucket [{}] do chưa tồn tại.", actualBucket);
+            }
+
+            // Cấu hình quyền Public Read để ảnh hiển thị được trên Frontend
+            try {
+                String policy = "{\n" +
+                        "  \"Version\": \"2012-10-17\",\n" +
+                        "  \"Statement\": [\n" +
+                        "    {\n" +
+                        "      \"Effect\": \"Allow\",\n" +
+                        "      \"Principal\": \"*\",\n" +
+                        "      \"Action\": [\"s3:GetObject\"],\n" +
+                        "      \"Resource\": [\"arn:aws:s3:::" + actualBucket + "/*\"]\n" +
+                        "    }\n" +
+                        "  ]\n" +
+                        "}";
+                minioClient.setBucketPolicy(SetBucketPolicyArgs.builder().bucket(actualBucket).config(policy).build());
+            } catch (Exception pe) {
+                log.warn("Cảnh báo khi set policy cho bucket [{}]: {}", actualBucket, pe.getMessage());
+            }
+
+            // 1. Tạo tên file UUID
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String fileName = UUID.randomUUID().toString() + extension;
+
+            // 2. Đẩy Stream trực tiếp vào bucket đích
+            try (InputStream inputStream = file.getInputStream()) {
+                minioClient.putObject(
+                        PutObjectArgs.builder()
+                                .bucket(actualBucket)
+                                .object(fileName)
+                                .stream(inputStream, file.getSize(), -1)
+                                .contentType(file.getContentType())
+                                .build()
+                );
+            }
+
+            // 3. Trả về URL dạng http://localhost:9000/{bucket}/{fileName}
+            String fileUrl = minioConfig.getUrl() + "/" + actualBucket + "/" + fileName;
+            log.info("Upload file vào bucket [{}] thành công. URL: {}", actualBucket, fileUrl);
+            return fileUrl;
+
+        } catch (Exception e) {
+            log.error("Đã có lỗi xảy ra trong quá trình upload file vào bucket [{}]: ", targetBucket, e);
+            throw new RuntimeException("Upload file thất bại: " + e.getMessage());
+        }
+    }
     public void deleteFile(String fileUrl) {
         //Kt nếu fileUrl trống hoặc null thì dừng lại
         if (fileUrl == null || fileUrl.isEmpty()) {
@@ -104,7 +174,7 @@ public class MinioService {
             //tạo tiền tố url cần loại bỏ
             String prefix = minioConfig.getUrl() + "/" + bucketName + "/";
             //Nếu url file bắt đầu bằng tiền tố của đúng bucket hiện tại
-            if (!fileUrl.startsWith(prefix)) {
+            if (fileUrl.startsWith(prefix)) {
                 //Cắt bỏ tiền tố để lấy objectName thực tế(ví dụ: avatars/abc.jpg)
                 String objectName = fileUrl.substring(prefix.length());
                 //Xóa obj trên minio

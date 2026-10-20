@@ -3,6 +3,7 @@ package com.example.auth_service.repository;
 import com.example.auth_service.entity.User;
 import com.example.lib.repository.BaseRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User, Long> {
@@ -11,4 +12,5 @@ public interface UserRepository extends BaseRepository<User, Long> {
     Optional<User> findByVerificationToken(String verificationToken);
     Optional<User> findByFacebookId(String facebookId);
     Optional<User> findByGoogleId(String googleId);
+    List<User> findByEmailOrPhone(String email, String phone);
 }

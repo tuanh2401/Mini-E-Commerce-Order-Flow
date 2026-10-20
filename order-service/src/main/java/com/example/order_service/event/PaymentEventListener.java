@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -17,51 +19,83 @@ import java.util.Optional;
 @Component
 public class PaymentEventListener {
     private final OrderRepository orderRepository;
-    private final RabbitTemplate rabbitTemplate;
-    //Viết phương thức và xử lý tin nhắn
-    @RabbitListener(queues = "payment.order.queue")
-    public void handlePaymentProcessed(PaymentProcessedEvent paymentProcessedEvent) {
-        //Log ngay khi nhận được tin nhắn
-        log.info("---- [MQ RECIEVE] nhận event thanh toán từ Payment-Service cho OrderID: {} ------", paymentProcessedEvent.getOrderId());
-        try {
-            //Tìm đơn hàng trong database
-            Optional<Order> orderOptional = orderRepository.findById(paymentProcessedEvent.getOrderId());
-            if (orderOptional.isEmpty()){
-                //log warn nếu k tìm thấy đơn hàng
-                log.warn("Không tìm thấy đơn hàng ID: {}", paymentProcessedEvent.getOrderId());
+//    private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+//    //Viết phương thức và xử lý tin nhắn
+//    @RabbitListener(queues = "payment.order.queue")
+//    public void handlePaymentProcessed(PaymentProcessedEvent paymentProcessedEvent) {
+//        //Log ngay khi nhận được tin nhắn
+//        log.info("---- [MQ RECIEVE] nhận event thanh toán từ Payment-Service cho OrderID: {} ------", paymentProcessedEvent.getOrderId());
+//        try {
+//            //Tìm đơn hàng trong database
+//            Optional<Order> orderOptional = orderRepository.findById(paymentProcessedEvent.getOrderId());
+//            if (orderOptional.isEmpty()){
+//                //log warn nếu k tìm thấy đơn hàng
+//                log.warn("Không tìm thấy đơn hàng ID: {}", paymentProcessedEvent.getOrderId());
+//                return;
+//            }
+//            Order order = orderOptional.get();
+//            String oldStatus =  order.getStatus();
+//            String newStatus;
+//            //Dựa vào status trong event để quyết định trạng thái
+//            if("SUCCESS".equalsIgnoreCase(paymentProcessedEvent.getStatus())){
+//                newStatus = "PAID";
+//                log.info("Thanh toán thành công cho đơn hàng : {}. Chuyển trạng thái sang paid",paymentProcessedEvent.getOrderId());
+//
+//            }else {
+//                newStatus = "CANCELLED";
+//                log.info("Thanh toán thất bại cho đơn hàng: {}. Chuyển trạng thái sang Cancelled",paymentProcessedEvent.getOrderId());
+//            }
+//            OrderPaidEvent orderPaidEvent = new OrderPaidEvent(
+//                    order.getId(),
+//                    order.getUserId(),
+//                    order.getTotalPrice()
+//            );
+//            //Gửi event lên rabbitmq
+//            rabbitTemplate.convertAndSend("order.exchange", "order.paid" , orderPaidEvent);
+//            log.info("---- [MQ SEND] ---- Đã gửi sự kiện OrderPaidEvent cho OrderID: {} ------ ", order.getId());
+//
+//            //Cập nhật trạng thái và lưu vào database
+//            order.setStatus(newStatus);
+//            orderRepository.save(order);
+//            //Log kết quả thành công
+//            log.info("Cập nhật thành công trạng thái đơn hàng [{}] từ [{}] thành [{}] thành công",paymentProcessedEvent.getOrderId(),oldStatus,newStatus);
+//
+//        }catch (Exception e){
+//            //Xử lý ngoại lệ và log chi tiết
+//            log.error("Lỗi nghiêm trọng : Không thể cập nhật trạng thái cho đơn hàng ID: {}. Chi tiết lỗi: {}",paymentProcessedEvent.getOrderId(),e.getMessage());
+//        }
+//
+//    }
+    @KafkaListener(topics = "payment-processed-topic",groupId = "order-payment-group")
+    public void handlePaymentProcessedKafka(PaymentProcessedEvent event){
+        log.info("[KAFKA Consumer] Nhận kết quả thanh toán từ kafka cho OrderId: {}, Status:{}",event.getOrderId(),event.getStatus());
+        try{
+            Optional<Order> orderOptional = orderRepository.findById(event.getOrderId());
+            if(orderOptional.isEmpty()){
+                log.warn("Không tìm thấy đơn hàng ID: {} trong DB ",event.getOrderId());
                 return;
             }
             Order order = orderOptional.get();
-            String oldStatus =  order.getStatus();
-            String newStatus;
-            //Dựa vào status trong event để quyết định trạng thái
-            if("SUCCESS".equalsIgnoreCase(paymentProcessedEvent.getStatus())){
-                newStatus = "PAID";
-                log.info("Thanh toán thành công cho đơn hàng : {}. Chuyển trạng thái sang paid",paymentProcessedEvent.getOrderId());
-
-            }else {
-                newStatus = "CANCELLED";
-                log.info("Thanh toán thất bại cho đơn hàng: {}. Chuyển trạng thái sang Cancelled",paymentProcessedEvent.getOrderId());
+            if("SUCCESS".equalsIgnoreCase(event.getStatus())){
+                order.setStatus("PAID");
+                log.info("Đã đổi trạng thái đơn hàng [{}] sang PAID",order.getId());
+                //Tạo event thông báo đơn hàng đã trả tiền
+                OrderPaidEvent orderPaidEvent = new OrderPaidEvent(
+                        order.getId(),
+                        order.getUserId(),
+                        order.getTotalPrice()
+                );
+                //Bắn sự kiện tiếp theo lên Kafka Topic 'order-paid-topic'
+                kafkaTemplate.send("order-paid-topic",order.getId(),orderPaidEvent);
+                log.info("[Kafka Producer] đã bắn sự kiện OrderPaidEvent lên topic [order-paid-topic]!");
+            }else{
+                order.setStatus("CANCELLED");
+                log.info("Đã đổi trạng thái đơn hàng [{}] sang Cancelled",order.getId());
             }
-            OrderPaidEvent orderPaidEvent = new OrderPaidEvent(
-                    order.getId(),
-                    order.getUserId(),
-                    order.getTotalPrice()
-            );
-            //Gửi event lên rabbitmq
-            rabbitTemplate.convertAndSend("order.exchange", "order.paid" , orderPaidEvent);
-            log.info("---- [MQ SEND] ---- Đã gửi sự kiện OrderPaidEvent cho OrderID: {} ------ ", order.getId());
-
-            //Cập nhật trạng thái và lưu vào database
-            order.setStatus(newStatus);
             orderRepository.save(order);
-            //Log kết quả thành công
-            log.info("Cập nhật thành công trạng thái đơn hàng [{}] từ [{}] thành [{}] thành công",paymentProcessedEvent.getOrderId(),oldStatus,newStatus);
-
         }catch (Exception e){
-            //Xử lý ngoại lệ và log chi tiết
-            log.error("Lỗi nghiêm trọng : Không thể cập nhật trạng thái cho đơn hàng ID: {}. Chi tiết lỗi: {}",paymentProcessedEvent.getOrderId(),e.getMessage());
+            log.error("Lỗi xử lý Kafka Event cho OrderId [{}]: {}",event.getOrderId(),e.getMessage());
         }
-
     }
 }

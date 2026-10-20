@@ -98,3 +98,9 @@ rabbitmq:
     order: order.exchange
   routing-key:
     order-paid: order.paid
+
+  # ========== KAFKA ==========
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user-tier-group

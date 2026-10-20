@@ -18,4 +18,8 @@ public interface UserService extends IBaseService<UserRepository, UserResponse, 
     UserResponse uploadUserAvatar(Long id, MultipartFile file);
 
     com.example.lib.model.response.BaseResponse<UserResponse> updateMyProfile(UserResponse dto);
+
+    void requestChangeEmailOtp(Long userId, String newEmail);
+
+    UserResponse verifyChangeEmailOtp(Long userId, String otpCode);
 }

@@ -10,10 +10,7 @@ import java.util.Optional;
 public interface PaymentRepository extends BaseRepository<Payment,String> {
     // Tìm payment theo orderId — dùng khi query trạng thái từ Controller
     Optional<Payment> findByOrderId(String orderId);
-
-    // Tìm payment theo vnpTxnRef — dùng khi VNPAY gọi IPN callback
-    // vnpTxnRef là mã ngắn mà mình tự tạo ra lúc gửi sang VNPAY
-    Optional<Payment> findByVnpTxnRef(String vnpTxnRef);
+    Optional<Payment> findByOrderCode(Long orderCode);
     //Đếm sl giao dịch theo trạng thái
     long countByStatus(PaymentStatus status);
     //Lấy ds giao dịch theo trạng thái

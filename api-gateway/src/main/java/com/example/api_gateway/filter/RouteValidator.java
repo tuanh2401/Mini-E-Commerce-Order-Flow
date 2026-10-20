@@ -19,6 +19,9 @@ public class RouteValidator {
         "/api/auth/verify",
         "/api/auth/reject",
         "/api/auth/register-admin",
+        "/api/auth/forgot-password",
+        "/api/auth/reset-password",
+        "/api/auth/find-account",
         "/v3/api-docs",
         "/swagger-ui"
     );
@@ -26,13 +29,13 @@ public class RouteValidator {
         String path = request.getURI().getPath();
         String method = request.getMethod().name();
         
-        // Cho phép GET /api/products/** và GET /api/categories/** công khai không cần token
+        // Cho phép GET /api/products/** (ngoại trừ analytics, banners/all và badges/all), GET /api/categories/**, GET /api/promotions/active công khai
         if ("GET".equalsIgnoreCase(method)) {
-            if((path.startsWith("/api/products") && !path.startsWith("api/products/analytics")) || path.startsWith("/api/categories")) {
+            if((path.startsWith("/api/products") && !path.startsWith("/api/products/analytics") && !path.startsWith("/api/products/banners/all") && !path.startsWith("/api/products/badges/all")) || path.startsWith("/api/categories") || path.startsWith("/api/promotions/active")) {
                 return false;
             }
         }
         
-        return openApiEndpoints.stream().noneMatch(uri -> path.contains(uri));
+        return openApiEndpoints.stream().noneMatch(uri -> path.equals(uri) || path.startsWith(uri + "/"));
     };
 }

@@ -17,9 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,8 @@ public class    AuthService {
     private RoleReposiory roleReposiary;
     @Autowired
     private RolePermissionSyncService rolePermissionSyncService;
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${jwt.refresh-expiration:604800000}")
     private long refreshExpirationMs;
@@ -395,7 +400,184 @@ public class    AuthService {
                 .userId(user.getId())
                 .message("Tạo admin thành công ! Cấp token test")
                 .build();
+    }
+    public AuthResponse registerStaff(RegisterRequest registerRequest){
+        log.info("Admin yêu cầu tạo tài khoản nhân viên : {}, email: {}",registerRequest.getUsername(),registerRequest.getEmail());
+        //Kiểm tra trùng username
+        if(userRepository.findByUsername(registerRequest.getUsername()).isPresent()){
+            throw new BusinessException(HttpStatus.CONFLICT,"Username này đã tồn tại trong hệ thống!",null);
+        }
+        //Kiểm tra trùng email
+        if(userRepository.findByEmail(registerRequest.getEmail()).isPresent()){
+            throw new BusinessException(HttpStatus.CONFLICT,"Email đã tồn tại trong hệ thống!",null);
+        }
+        //Lấy role ROLE_STAFF từ DB
+        Role staffRole = roleReposiory.findByName("ROLE_STAFF")
+                .orElseThrow(() -> new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR,"Lỗi hệ thống: Chưa khởi tạo vai trò ROLE_STAFF trong database.",null));
+        User user = User.builder()
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .email(registerRequest.getEmail())
+                .roles(Collections.singleton(staffRole))
+                .fullname(registerRequest.getFullname())
+                .age(registerRequest.getAge())
+                .enabled(true)
+                .build();
+        userRepository.save(user);
 
+        // Đồng bộ sang user-service qua userClient (giống registerAdmin)
+        try {
+            SyncUserRequest syncRequest = SyncUserRequest.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .fullname(user.getFullname())
+                    .age(user.getAge())
+                    .email(user.getEmail())
+                    .build();
+            userClient.syncUser(syncRequest);
+            log.info("Đồng bộ Staff ID [{}] sang User-Service thành công.", user.getId());
+        } catch (Exception e) {
+            log.error("LỖI ĐỒNG BỘ: Không thể đồng bộ Staff ID [{}] sang User-Service: {}", user.getId(), e.getMessage());
+        }
+
+        return AuthResponse.builder()
+                .username(user.getUsername())
+                .userId(user.getId())
+                .message("Tạo tài khoản nhân viên thành công!")
+                .build();
+    }
+    // Hàm ẩn bớt ký tự email (vd: nguyentuananh240104@gmail.com -> n***4@gmail.com)
+    public String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return email;
+        String[] parts = email.split("@");
+        String name = parts[0];
+        String domain = parts[1];
+        if (name.length() <= 2) {
+            return name.charAt(0) + "***@" + domain;
+        }
+        return name.charAt(0) + "***" + name.charAt(name.length() - 1) + "@" + domain;
     }
 
+    // Hàm ẩn bớt số điện thoại (vd: 0967233789 -> 096****789)
+    public String maskPhone(String phone) {
+        if (phone == null || phone.length() < 6) return phone;
+        int len = phone.length();
+        return phone.substring(0, 3) + "****" + phone.substring(len - 3);
+    }
+
+    // 1. Yêu cầu quên mật khẩu theo Tên tài khoản (Username)
+    public com.example.auth_service.dto.response.ForgotPasswordResponse forgotPassword(ForgotPasswordRequest request) {
+        String username = request.getUsername().trim();
+        log.info("Nhận yêu cầu quên mật khẩu cho Username: [{}]", username);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản với tên đăng nhập: " + username, null));
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Tài khoản này chưa liên kết với Email để nhận mã OTP!", null);
+        }
+
+        // Sinh mã OTP 6 số ngẫu nhiên
+        String otpCode = String.format("%06d", new Random().nextInt(1000000));
+
+        // Lưu vào Redis theo key username (TTL = 3 phút)
+        String redisKey = "otp:forgot-password:" + username;
+        stringRedisTemplate.opsForValue().set(redisKey, otpCode, Duration.ofMinutes(3));
+        log.info("⭐ Đã lưu OTP [{}] cho tài khoản [{}] vào Redis (hết hạn sau 3p)", otpCode, username);
+
+        // Bắn sự kiện lên Kafka gửi tới Email của user
+        EmailVerificationEvent event = EmailVerificationEvent.builder()
+                .email(user.getEmail())
+                .username(user.getFullname() != null ? user.getFullname() : user.getUsername())
+                .verificationToken(otpCode)
+                .expiryTime(LocalDateTime.now().plusMinutes(3))
+                .build();
+
+        kafkaTemplate.send("send-otp-email-topic", String.valueOf(user.getId()), event);
+        log.info("🚀 [KAFKA] Đã bắn sự kiện gửi OTP quên mật khẩu tới hòm thư [{}] lên topic [send-otp-email-topic]!", user.getEmail());
+
+        String maskedEmail = maskEmail(user.getEmail());
+        return com.example.auth_service.dto.response.ForgotPasswordResponse.builder()
+                .username(username)
+                .maskedEmail(maskedEmail)
+                .message("Mã OTP 6 số đã được gửi đến email liên kết: " + maskedEmail)
+                .build();
+    }
+
+    // 2. Xác thực OTP và đặt lại mật khẩu mới
+    @Transactional(rollbackFor = Exception.class)
+    public void resetPassword(ResetPasswordRequest request) {
+        String username = request.getUsername().trim();
+        String otpCode = request.getOtpCode().trim();
+        log.info("Nhận yêu cầu đặt lại mật khẩu cho tài khoản: [{}]", username);
+
+        // 1. Lấy mã OTP từ Redis
+        String redisKey = "otp:forgot-password:" + username;
+        String savedOtp = stringRedisTemplate.opsForValue().get(redisKey);
+
+        if (savedOtp == null) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Mã xác thực OTP đã hết hạn hoặc không tồn tại. Vui lòng gửi lại yêu cầu!", null);
+        }
+
+        // 2. So khớp mã OTP
+        if (!savedOtp.equals(otpCode)) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Mã xác thực OTP không chính xác!", null);
+        }
+
+        // 3. Tìm User và mã hóa mật khẩu mới bằng BCrypt
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản: " + username, null));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        // 4. Xóa OTP trong Redis
+        stringRedisTemplate.delete(redisKey);
+        log.info("✅ Đặt lại mật khẩu thành công cho tài khoản: [{}]", user.getUsername());
+    }
+
+    // 3. Tìm tài khoản khi Quên Tên Đăng Nhập (theo Email hoặc Số điện thoại)
+    public com.example.auth_service.dto.response.FindAccountResponse findAccount(FindAccountRequest request) {
+        String identifier = request.getIdentifier().trim();
+        log.info("Nhận yêu cầu tìm tài khoản theo thông tin: [{}]", identifier);
+
+        List<User> users = userRepository.findByEmailOrPhone(identifier, identifier);
+        if (users == null || users.isEmpty()) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản nào khớp với Email hoặc Số điện thoại: " + identifier, null);
+        }
+
+        User user = users.get(0);
+
+        // Gửi thông tin Tên đăng nhập về Email qua Kafka để tăng tính bảo mật
+        try {
+            EmailVerificationEvent event = EmailVerificationEvent.builder()
+                    .email(user.getEmail())
+                    .username(user.getUsername())
+                    .verificationToken(user.getFullname())
+                    .expiryTime(LocalDateTime.now().plusHours(24))
+                    .build();
+            kafkaTemplate.send("send-find-account-email-topic", event);
+            log.info("⭐ Đã bắn sự kiện gửi thông tin tài khoản qua Kafka tới email [{}]", user.getEmail());
+        } catch (Exception ex) {
+            log.error("💥 Không thể gửi thông tin tài khoản qua Kafka: {}", ex.getMessage());
+        }
+
+        return com.example.auth_service.dto.response.FindAccountResponse.builder()
+                .username(null) // Ẩn username trên giao diện để bảo mật tối đa
+                .fullname(user.getFullname())
+                .maskedEmail(maskEmail(user.getEmail()))
+                .maskedPhone(maskPhone(user.getPhone()))
+                .build();
+    }
+
+    // 4. Đồng bộ Email từ User-Service sang Auth-Service
+    @Transactional(rollbackFor = Exception.class)
+    public void updateEmailInternal(Long userId, String email) {
+        log.info("[ĐỒNG BỘ NỘI BỘ] Cập nhật Email cho User ID [{}] thành [{}]", userId, email);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng", null));
+        user.setEmail(email.trim());
+        userRepository.save(user);
+        log.info("[ĐỒNG BỘ NỘI BỘ] Đã cập nhật thành công Email mới vào auth_db cho User ID [{}]", userId);
+    }
 }

@@ -27,6 +27,20 @@ export default function AuthPage() {
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
   const [verificationToken, setVerificationToken] = useState("");
 
+  // Màn hình Quên mật khẩu & Quên tên tài khoản
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [forgotMode, setForgotMode] = useState("forgot_password"); // "forgot_password" | "find_account"
+  const [forgotStep, setForgotStep] = useState(1); // 1: Nhập Username -> 2: Nhập OTP & Mật khẩu mới
+  const [forgotUsername, setForgotUsername] = useState("");
+  const [maskedEmail, setMaskedEmail] = useState("");
+  const [forgotOtpCode, setForgotOtpCode] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
+
+  // Quên tên tài khoản (Tìm Username theo Email / SĐT)
+  const [findAccountIdentifier, setFindAccountIdentifier] = useState("");
+  const [foundAccount, setFoundAccount] = useState(null);
+
   // Form hoàn thiện thông tin Social Login khi đăng nhập mạng xã hội lần đầu
   const [socialRegData, setSocialRegData] = useState(null); // { provider, token, email, fullname }
   const [socialRegUsername, setSocialRegUsername] = useState("");
@@ -76,7 +90,7 @@ export default function AuthPage() {
       });
       handleAuthSuccess(response.data.data);
     } catch (err) {
-      console.error(err);
+      console.warn(err);
       setErrorMsg(err.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
     } finally {
       setLoading(false);
@@ -104,7 +118,7 @@ export default function AuthPage() {
       setSuccessMsg("Đăng ký thành công! Một mã kích hoạt đã được gửi tới email của bạn.");
       setIsVerifyingEmail(true);
     } catch (err) {
-      console.error(err);
+      console.warn(err);
       setErrorMsg(err.response?.data?.message || "Đăng ký tài khoản thất bại!");
     } finally {
       setLoading(false);
@@ -122,14 +136,107 @@ export default function AuthPage() {
     setErrorMsg("");
     setSuccessMsg("");
     try {
-      await axios.get(`${API_GATEWAY}/auth/verify?token=${verificationToken}`);
-      setSuccessMsg("Tài khoản của bạn đã được kích hoạt thành công! Hãy đăng nhập.");
+      await axios.get(`${API_GATEWAY}/auth/verify?token=${verificationToken.trim()}`);
+      setSuccessMsg("Kích hoạt tài khoản thành công! Bạn có thể đăng nhập ngay.");
       setIsVerifyingEmail(false);
       setActiveTab("login");
       setVerificationToken("");
     } catch (err) {
-      console.error(err);
+      console.warn(err);
       setErrorMsg(err.response?.data?.message || "Mã kích hoạt không hợp lệ hoặc đã hết hạn!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 1. Gửi yêu cầu lấy mã OTP quên mật khẩu theo Username (Bước 1)
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!forgotUsername.trim()) {
+      setErrorMsg("Vui lòng nhập tên tài khoản (Username) của bạn!");
+      return;
+    }
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+    try {
+      const res = await axios.post(`${API_GATEWAY}/auth/forgot-password`, {
+        username: forgotUsername.trim()
+      });
+      const data = res.data?.data;
+      setMaskedEmail(data?.maskedEmail || "email liên kết");
+      setSuccessMsg(res.data?.message || `Mã OTP đã được gửi đến email liên kết: ${data?.maskedEmail}`);
+      setForgotStep(2); // Chuyển sang bước 2: Nhập OTP và Mật khẩu mới
+    } catch (err) {
+      console.warn(err);
+      setErrorMsg(err.response?.data?.message || "Không tìm thấy tên tài khoản này trong hệ thống!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. Xác thực OTP và đặt lại mật khẩu mới (Bước 2)
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!forgotOtpCode.trim() || !forgotNewPassword.trim() || !forgotConfirmPassword.trim()) {
+      setErrorMsg("Vui lòng nhập đầy đủ mã OTP, mật khẩu mới và xác nhận mật khẩu!");
+      return;
+    }
+    if (forgotNewPassword.trim().length < 6) {
+      setErrorMsg("Mật khẩu mới phải có tối thiểu 6 ký tự!");
+      return;
+    }
+    if (forgotNewPassword.trim() !== forgotConfirmPassword.trim()) {
+      setErrorMsg("Mật khẩu xác nhận không khớp với mật khẩu mới!");
+      return;
+    }
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+    try {
+      const res = await axios.post(`${API_GATEWAY}/auth/reset-password`, {
+        username: forgotUsername.trim(),
+        otpCode: forgotOtpCode.trim(),
+        newPassword: forgotNewPassword.trim()
+      });
+      setSuccessMsg(res.data?.message || "Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.");
+      // Reset form và chuyển về tab đăng nhập sau 2 giây
+      setTimeout(() => {
+        setIsForgotPassword(false);
+        setForgotStep(1);
+        setForgotUsername("");
+        setForgotOtpCode("");
+        setForgotNewPassword("");
+        setForgotConfirmPassword("");
+        setActiveTab("login");
+      }, 2000);
+    } catch (err) {
+      console.warn(err);
+      setErrorMsg(err.response?.data?.message || "Xác thực thất bại. Mã OTP không đúng hoặc đã hết hạn!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 3. Tìm tài khoản khi Quên Tên Đăng Nhập
+  const handleFindAccountSubmit = async (e) => {
+    e.preventDefault();
+    if (!findAccountIdentifier.trim()) {
+      setErrorMsg("Vui lòng nhập Email hoặc Số điện thoại đã đăng ký!");
+      return;
+    }
+    setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
+    setFoundAccount(null);
+    try {
+      const res = await axios.post(`${API_GATEWAY}/auth/find-account`, {
+        identifier: findAccountIdentifier.trim()
+      });
+      setFoundAccount(res.data?.data);
+    } catch (err) {
+      console.warn(err);
+      setErrorMsg(err.response?.data?.message || "Không tìm thấy tài khoản nào khớp với thông tin này!");
     } finally {
       setLoading(false);
     }
@@ -242,6 +349,7 @@ export default function AuthPage() {
     localStorage.setItem("refreshToken", data.refreshToken);
     localStorage.setItem("userId", data.userId);
     localStorage.setItem("username", data.username);
+    localStorage.removeItem("userAvatar"); // Xóa avatar cũ của phiên đăng nhập trước để Header tải lại từ /users/me
     
     axios.defaults.headers.common['Authorization'] = `Bearer ${data.jwt}`;
     
@@ -254,8 +362,10 @@ export default function AuthPage() {
       console.error("Lỗi giải mã token:", e);
     }
 
-    if (role === "ADMIN") {
+    if (role === "ADMIN" || role === "ROLE_ADMIN") {
       window.location.href = "/admin";
+    } else if (role === "STAFF" || role === "ROLE_STAFF") {
+      window.location.href = "/staff";
     } else {
       window.location.href = "/"; // Quay lại trang chủ
     }
@@ -333,6 +443,184 @@ export default function AuthPage() {
                 </div>
               </form>
             </div>
+          ) : isForgotPassword ? (
+            /* MÀN HÌNH QUÊN MẬT KHẨU & QUÊN TÀI KHOẢN */
+            <div>
+              {forgotMode === "find_account" ? (
+                /* CHẾ ĐỘ 1: QUÊN TÊN TÀI KHOẢN (FIND ACCOUNT) */
+                <div>
+                  <h2 className="auth-title">TÌM TÊN TÀI KHOẢN</h2>
+                  <p className="auth-subtitle">Nhập Email hoặc Số điện thoại đã đăng ký để tìm lại Tên đăng nhập (Username)</p>
+                  {errorMsg && <div className="auth-alert error">{errorMsg}</div>}
+                  {successMsg && <div className="auth-alert success">{successMsg}</div>}
+
+                  <form onSubmit={handleFindAccountSubmit} className="auth-form">
+                    <div className="auth-input-group">
+                      <label>Email hoặc Số điện thoại</label>
+                      <input 
+                        type="text" 
+                        placeholder="VD: user1@gmail.com hoặc 0912345678" 
+                        value={findAccountIdentifier} 
+                        onChange={(e) => setFindAccountIdentifier(e.target.value)} 
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="btn-auth-primary" disabled={loading} style={{ marginTop: "15px" }}>
+                      {loading ? "Đang tìm kiếm..." : "Tìm tài khoản"}
+                    </button>
+                  </form>
+
+                  {/* KẾT QUẢ TÌM THẤY TÀI KHOẢN */}
+                  {foundAccount && (
+                    <div style={{ marginTop: "20px", padding: "18px", background: "#f0fdf4", borderRadius: "10px", border: "1.5px solid #86efac", textAlign: "center" }}>
+                      <div style={{ fontSize: "28px", marginBottom: "8px" }}>📧</div>
+                      <div style={{ fontSize: "16px", fontWeight: "bold", color: "#166534" }}>
+                        ĐÃ GỬI TÊN TÀI KHOẢN VỀ EMAIL
+                      </div>
+                      <div style={{ fontSize: "13px", color: "#15803d", marginTop: "6px", lineHeight: "1.5" }}>
+                        Thông tin Tên đăng nhập (Username) đã được gửi đến: <br/>
+                        <strong style={{ fontSize: "14px", color: "#166534" }}>
+                          {findAccountIdentifier.includes("@") ? findAccountIdentifier.trim() : foundAccount.maskedEmail}
+                        </strong>
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#64748b", marginTop: "8px" }}>
+                        Vui lòng kiểm tra hộp thư Gmail để xem Tên đăng nhập tài khoản của bạn.
+                      </div>
+
+                      <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+                        <button 
+                          type="button" 
+                          className="btn-auth-primary" 
+                          onClick={() => {
+                            setForgotMode("forgot_password");
+                            setForgotStep(1);
+                            setErrorMsg("");
+                            setSuccessMsg("");
+                          }}
+                          style={{ flex: 1, padding: "10px", fontSize: "13px" }}
+                        >
+                          Lấy lại mật khẩu
+                        </button>
+                        <button 
+                          type="button" 
+                          className="btn-auth-secondary" 
+                          onClick={() => {
+                            setIsForgotPassword(false);
+                            setActiveTab("login");
+                            setErrorMsg("");
+                            setSuccessMsg("");
+                          }}
+                          style={{ flex: 1, padding: "10px", fontSize: "13px" }}
+                        >
+                          Đăng nhập ngay
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ textAlign: "center", marginTop: "20px" }}>
+                    <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); setForgotMode("forgot_password"); setErrorMsg(""); setSuccessMsg(""); }}>
+                      ← Quay lại Quên mật khẩu
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                /* CHẾ ĐỘ 2: QUÊN MẬT KHẨU (FORGOT PASSWORD THEO USERNAME) */
+                <div>
+                  <h2 className="auth-title">KHÔI PHỤC MẬT KHẨU</h2>
+                  <p className="auth-subtitle">
+                    {forgotStep === 1 
+                      ? "Nhập tên tài khoản (Username) để nhận mã xác thực OTP qua Email liên kết" 
+                      : "Nhập mã OTP 6 số từ hộp thư Gmail và đặt mật khẩu mới"}
+                  </p>
+                  {errorMsg && <div className="auth-alert error">{errorMsg}</div>}
+                  {successMsg && <div className="auth-alert success">{successMsg}</div>}
+
+                  {forgotStep === 1 ? (
+                    <form onSubmit={handleForgotPasswordSubmit} className="auth-form">
+                      <div className="auth-input-group">
+                        <label>Tên đăng nhập (Username)</label>
+                        <input 
+                          type="text" 
+                          placeholder="Nhập username của bạn..." 
+                          value={forgotUsername} 
+                          onChange={(e) => setForgotUsername(e.target.value)} 
+                          required
+                        />
+                      </div>
+
+                      <div style={{ textAlign: "right", marginTop: "6px" }}>
+                        <a 
+                          href="#" 
+                          className="auth-link" 
+                          onClick={(e) => { e.preventDefault(); setForgotMode("find_account"); setFindAccountIdentifier(""); setFoundAccount(null); setErrorMsg(""); setSuccessMsg(""); }}
+                          style={{ fontSize: "13px", color: "#3b82f6" }}
+                        >
+                          Quên tên tài khoản?
+                        </a>
+                      </div>
+
+                      <button type="submit" className="btn-auth-primary" disabled={loading} style={{ marginTop: "15px" }}>
+                        {loading ? "Đang kiểm tra & gửi mã..." : "Tiếp tục"}
+                      </button>
+                      <div style={{ textAlign: "center", marginTop: "15px" }}>
+                        <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); setIsForgotPassword(false); setErrorMsg(""); setSuccessMsg(""); }}>
+                          Quay lại Đăng nhập
+                        </a>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleResetPasswordSubmit} className="auth-form">
+                      <div className="auth-input-group">
+                        <label>Mã xác thực OTP (6 số)</label>
+                        <input 
+                          type="text" 
+                          maxLength="6"
+                          placeholder="Nhập mã 6 số gửi về Gmail..." 
+                          value={forgotOtpCode} 
+                          onChange={(e) => setForgotOtpCode(e.target.value)} 
+                          autoComplete="one-time-code"
+                          required
+                        />
+                      </div>
+                      <div className="auth-input-group">
+                        <label>Mật khẩu mới</label>
+                        <input 
+                          type="password" 
+                          placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)..." 
+                          value={forgotNewPassword} 
+                          onChange={(e) => setForgotNewPassword(e.target.value)} 
+                          autoComplete="new-password"
+                          required
+                        />
+                      </div>
+                      <div className="auth-input-group">
+                        <label>Xác nhận mật khẩu mới</label>
+                        <input 
+                          type="password" 
+                          placeholder="Nhập lại mật khẩu mới..." 
+                          value={forgotConfirmPassword} 
+                          onChange={(e) => setForgotConfirmPassword(e.target.value)} 
+                          autoComplete="new-password"
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn-auth-primary" disabled={loading} style={{ marginTop: "15px" }}>
+                        {loading ? "Đang xử lý..." : "Xác nhận & Đổi mật khẩu"}
+                      </button>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
+                        <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); setForgotStep(1); setForgotOtpCode(""); setForgotNewPassword(""); setForgotConfirmPassword(""); setErrorMsg(""); setSuccessMsg(""); }}>
+                          ← Đổi tên tài khoản khác
+                        </a>
+                        <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); setIsForgotPassword(false); setErrorMsg(""); setSuccessMsg(""); }}>
+                          Đăng nhập
+                        </a>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             /* MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ THÔNG THƯỜNG */
             <div>
@@ -383,7 +671,7 @@ export default function AuthPage() {
                     <label className="auth-remember">
                       <input type="checkbox" /> Ghi nhớ đăng nhập
                     </label>
-                    <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); alert("Nếu quên mật khẩu, hãy đăng ký tài khoản mới hoặc kiểm tra token xác thực trong hòm thư email của bạn!"); }}>Quên mật khẩu?</a>
+                    <a href="#" className="auth-link" onClick={(e) => { e.preventDefault(); setIsForgotPassword(true); setForgotStep(1); setErrorMsg(""); setSuccessMsg(""); }}>Quên mật khẩu?</a>
                   </div>
 
                   <button type="submit" className="btn-auth-primary" disabled={loading}>

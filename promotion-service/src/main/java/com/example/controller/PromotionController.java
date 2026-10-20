@@ -74,7 +74,6 @@ public class PromotionController extends BaseController<VoucherService, VoucherR
      * URL: GET /api/promotions/active
      */
     @GetMapping("/active")
-    @PreAuthorize("@ss.hasPermission('PROMOTION_ACTIVE_VIEW')")
     public ResponseEntity<BaseResponse<List<VoucherResponse>>> getActiveVouchers() {
         log.info("Người dùng yêu cầu lấy danh sách mã giảm giá khả dụng");
         List<VoucherResponse> response = service.getActiveVouchers();

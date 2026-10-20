@@ -2,6 +2,7 @@ package com.example.user_service.controller;
 
 import com.example.lib.controller.BaseController;
 import com.example.lib.model.response.BaseResponse;
+import com.example.user_service.dto.request.EmailOtpRequest;
 import com.example.user_service.dto.request.SyncUserRequest;
 import com.example.user_service.dto.response.UserResponse;
 import com.example.user_service.service.UserService;
@@ -79,5 +80,31 @@ public class UserController extends BaseController<UserService, UserResponse, Lo
         log.info("User [{}] yêu cầu tải lên ảnh đại diện mới", userId);
         UserResponse response = service.uploadUserAvatar(userId, file);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response));
+    }
+    // API 1: Yêu cầu gửi mã OTP đổi email
+    @PostMapping("/me/email/request-otp")
+    @PreAuthorize("@ss.hasPermission('USER_VIEW')")
+    public ResponseEntity<BaseResponse<String>> requestChangeEmailOtp(
+            @Parameter(hidden = true) @RequestHeader("userId") Long userId,
+            @RequestBody EmailOtpRequest request) {
+        service.requestChangeEmailOtp(userId, request.getNewEmail());
+        BaseResponse<String> response = new BaseResponse<>();
+        response.setStatus(HttpStatus.OK);
+        response.setMessage("Mã xác thực OTP đã được gửi đến email: " + request.getNewEmail());
+        return ResponseEntity.ok(response);
+    }
+
+    // API 2: Xác thực mã OTP và hoàn tất đổi email
+    @PostMapping("/me/email/verify-otp")
+    @PreAuthorize("@ss.hasPermission('USER_VIEW')")
+    public ResponseEntity<BaseResponse<UserResponse>> verifyChangeEmailOtp(
+            @Parameter(hidden = true) @RequestHeader("userId") Long userId,
+            @RequestBody EmailOtpRequest request) {
+        UserResponse responseData = service.verifyChangeEmailOtp(userId, request.getOtpCode());
+        BaseResponse<UserResponse> response = new BaseResponse<>();
+        response.setStatus(HttpStatus.OK);
+        response.setData(responseData);
+        response.setMessage("Cập nhật địa chỉ email mới thành công!");
+        return ResponseEntity.ok(response);
     }
 }

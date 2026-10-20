@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -31,4 +33,5 @@ public class ReviewResponse extends BaseDto<Long> {
     // Validate: ID sản phẩm được đánh giá không được trống
     @NotNull(message = "productId không được để trống", groups = {Create.class, Update.class})
     private Long productId;
+    private List<String> images;
 }

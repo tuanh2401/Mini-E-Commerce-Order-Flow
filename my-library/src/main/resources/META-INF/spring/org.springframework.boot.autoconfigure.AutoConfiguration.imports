@@ -7,3 +7,4 @@ com.example.lib.config.redis.RedisConfig
 com.example.lib.config.security.I18nConfig
 com.example.lib.config.minio.MinioConfig
 com.example.lib.config.audit.AuditingConfig
+com.example.lib.config.kafka.KafkaAutoConfig
