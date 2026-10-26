@@ -1,0 +1,349 @@
+services:
+  # =======================================================
+  # 1. HẠ TẦNG (Consul, Kafka, Zookeeper, Kafdrop, MinIO)
+  # =======================================================
+  consul:
+    image: hashicorp/consul:latest
+    container_name: consul
+    restart: always
+    ports:
+      - "8500:8500"
+    command: "agent -dev -client=0.0.0.0"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    restart: always
+    ports:
+      - "9002:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+    depends_on:
+      - kafka
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  # =======================================================
+  # 2. API GATEWAY
+  # =======================================================
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=api-gateway
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+
+  # =======================================================
+  # 3. AUTH SERVICE
+  # =======================================================
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=auth-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=auth_db;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+
+  # =======================================================
+  # 4. USER SERVICE
+  # =======================================================
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: always
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=user-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_user;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MINIO_URL=http://minio:9000
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+      - minio
+
+  # =======================================================
+  # 5. ORDER SERVICE
+  # =======================================================
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=order-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_order;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ORDER_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+
+  # =======================================================
+  # 6. PRODUCT SERVICE
+  # =======================================================
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    restart: always
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=product-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_product;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MINIO_URL=http://minio:9000
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+      - minio
+
+  # =======================================================
+  # 7. PAYMENT SERVICE
+  # =======================================================
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=payment-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_payment;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+
+  # =======================================================
+  # 8. CART SERVICE
+  # =======================================================
+  cart-service:
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    container_name: cart-service
+    restart: always
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=cart-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_cart;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+
+  # =======================================================
+  # 9. PROMOTION SERVICE
+  # =======================================================
+  promotion-service:
+    build:
+      context: ./promotion-service
+      dockerfile: Dockerfile
+    container_name: promotion-service
+    restart: always
+    ports:
+      - "8091:8091"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=promotion-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://host.docker.internal;instanceName=SQL2025;databaseName=mini_ecommerce_promotion;encrypt=true;trustServerCertificate=true
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+
+  # =======================================================
+  # 10. DASHBOARD SERVICE
+  # =======================================================
+  dashboard-service:
+    build:
+      context: ./dashboard-service
+      dockerfile: Dockerfile
+    container_name: dashboard-service
+    restart: always
+    ports:
+      - "8092:8092"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=dashboard-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+
+  # =======================================================
+  # 11. NOTIFICATION SERVICE
+  # =======================================================
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: always
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_CLOUD_CONSUL_HOST=consul
+      - SPRING_CLOUD_CONSUL_PORT=8500
+      - SPRING_CLOUD_CONSUL_DISCOVERY_PREFER_IP_ADDRESS=false
+      - SPRING_CLOUD_CONSUL_DISCOVERY_HOSTNAME=notification-service
+      - SPRING_CLOUD_CONSUL_DISCOVERY_IP_ADDRESS=
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - MANAGEMENT_HEALTH_REDIS_ENABLED=false
+      - MANAGEMENT_HEALTH_RABBIT_ENABLED=false
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - consul
+      - kafka
+
+# =======================================================
+# PERSISTENT VOLUMES (Lưu trữ dữ liệu lâu dài)
+# =======================================================
+volumes:
+  minio_data:

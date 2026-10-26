@@ -1,5 +1,11 @@
-FROM eclipse-temurin:17.0.17_10-jre-ubi9-minimal
-ENV TZ='Asia/Ho_Chi_Minh'
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY target/api-gateway-1.0.0.jar ./apigateway.jar
-CMD ["java", "-jar", "-Dspring.profiles.active=dev", "/app/apigateway.jar"]
+
+ENV TZ="Asia/Ho_Chi_Minh"
+
+# Copy file JAR từ thư mục target (đã build ở bước mvn package)
+COPY target/*.jar app.jar
+
+EXPOSE 8082
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
